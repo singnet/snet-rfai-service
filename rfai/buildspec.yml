@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws s3 sync s3://${s3_bucket}/rfai/${stage} .
+      - aws s3 sync s3://${cache_bucket}/serverless/rfai/cache/ /var/cache/serverless
+      - aws s3 cp s3://${s3_bucket}/configs/${stage}/config.${stage}.json .
+      - service docker start
+      - npm install rfai/
+  build:
+    commands:
+      - sudo python3 -m compileall *.py
+      - serverless deploy --config rfai/serverless.yml --stage ${stage}
+      - cd .serverless/
+      - aws s3 sync . s3://${s3_bucket}/rfai/${stage}/.serverless/ --exclude 'requirements/*' --exclude 'rfai.zip'
+      - aws s3 sync /var/cache/serverless/ s3://${cache_bucket}/serverless/rfai/cache/
