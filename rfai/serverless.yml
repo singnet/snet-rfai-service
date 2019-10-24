@@ -50,7 +50,7 @@ package:
 functions:
   get-rfai:
     warmup: true
-    handler: handler.requests_for_ai_handler.request_handler
+    handler: rfai/requests_for_ai_handler.request_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
