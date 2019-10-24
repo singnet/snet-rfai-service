@@ -1,0 +1,33 @@
+---
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.6.6-node
+      - image: circleci/mysql:8.0.4
+        command: [--default-authentication-plugin=mysql_native_password]
+        environment:
+          MYSQL_ROOT_PASSWORD: unittest_pwd
+          MYSQL_DATABASE: unittest_db
+          MYSQL_USER: unittest_root
+          MYSQL_PASSWORD: unittest_pwd
+    working_directory: ~/singnet
+    steps:
+      - checkout
+      - run:
+      # Our primary container isn't MYSQL so run a sleep command until it's ready.
+          name: Waiting for MySQL to be ready
+          command: |
+            for i in `seq 1 30`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for MySQL && exit 1
+      - run:
+          name: Install MySQL client and other packages.
+          command: |
+            sudo apt-get update
+            sudo apt-get install mysql-client -y
+            sudo pip install coverage coveralls pytest boto3
