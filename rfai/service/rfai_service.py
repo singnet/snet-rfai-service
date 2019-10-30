@@ -10,4 +10,4 @@ class RFAIService:
             request_status = RFAIStatus[status.upper()].value
         else:
             raise Exception("Invalid Request status.")
-        return self.request_dao.get_request_data_for_given_requester(status=request_status, requester=requester)
+        return self.request_dao.get_request_data_for_given_requester_and_status(status=request_status, requester=requester)
