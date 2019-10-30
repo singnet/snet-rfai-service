@@ -1,0 +1,1 @@
+REQUIRED_KEYS_FOR_GET_RFAI_EVENT = ["resource", "httpMethod", "queryStringParameters"]
