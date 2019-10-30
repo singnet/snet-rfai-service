@@ -2,23 +2,16 @@ import json
 
 import requests
 
-IGNORED_LIST = ["row_id", "row_created", "row_updated"]
-MESSAGE_TYPE = {
-    0: "Info:: ",
-    1: "Error:: "
-}
-
 
 class Utils:
     def __init__(self):
         pass
 
-    def report_slack(self, type, slack_msg, SLACK_HOOK):
+    def report_slack(self, slack_msg, SLACK_HOOK):
         url = SLACK_HOOK["hostname"] + SLACK_HOOK["path"]
-        prefix = MESSAGE_TYPE.get(type, "")
         payload = {"channel": "#contract-index-alerts",
                    "username": "webhookbot",
-                   "text": prefix + slack_msg,
+                   "text": slack_msg,
                    "icon_emoji": ":ghost:"
                    }
 

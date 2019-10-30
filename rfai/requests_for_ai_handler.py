@@ -29,6 +29,6 @@ def request_handler(event, context):
             net_id=NETWORK_ID,
             handler="get-rfai"
         )
-        util.report_slack(1, error_message, SLACK_HOOK)
+        util.report_slack(error_message, SLACK_HOOK)
         response = util.generate_lambda_response(500, error_message, cors_enabled=True)
     return response
