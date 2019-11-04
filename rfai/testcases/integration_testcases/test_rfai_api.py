@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from rfai.requests_for_ai_handler import request_handler, get_vote_for_request_handler, get_stake_for_request_handler, \
-    get_solution_for_request_handler, get_foundation_members_handler
+    get_solution_for_request_handler, get_foundation_members_handler, rfai_summary_handler
 
 
 class TestRFAIAPI(unittest.TestCase):
@@ -80,3 +80,12 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response_body["status"] == "success")
         print(response_body)
         assert (response_body["data"] == [{'member_id': 1, 'member_address': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'status': 1}])
+
+    @patch("common.utils.Utils.report_slack")
+    def test_get_rfai_summary(self, mock_report_slack):
+        event = {"resource": "/summary", "httpMethod": "GET",
+                 "pathParameters": {"request_id": 1}}
+        response = rfai_summary_handler(event=event, context=None)
+        print(response)
+        assert (response["statusCode"] == 200)
+
