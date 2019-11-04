@@ -78,3 +78,12 @@ class Utils:
             {"status": status, "error": error, "resource": resource, "trace_id": trace_id, "payload": payload,
              "network_id": net_id,
              "handler": handler})
+
+    def bits_to_integer(self, value):
+        if value == b'\x01':
+            return 1
+        elif value == b'\x00':
+            return 0
+        else:
+            raise Exception("Invalid parameter value")
+

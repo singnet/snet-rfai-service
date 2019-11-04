@@ -75,7 +75,7 @@ def get_vote_for_request_handler(event, context):
             error=repr(e),
             payload=path_parameters,
             net_id=NETWORK_ID,
-            handler="get_vote_for_request"
+            handler="get-vote-for-request"
         )
         util.report_slack(error_message, SLACK_HOOK)
         response = util.generate_lambda_response(500, error_message, cors_enabled=True)
@@ -98,7 +98,7 @@ def get_solution_for_request_handler(event, context):
             error=repr(e),
             payload=path_parameters,
             net_id=NETWORK_ID,
-            handler="get_solution_for_request"
+            handler="get-solution-for-request"
         )
         util.report_slack(error_message, SLACK_HOOK)
         response = util.generate_lambda_response(500, error_message, cors_enabled=True)
@@ -121,7 +121,29 @@ def get_stake_for_request_handler(event, context):
             error=repr(e),
             payload=path_parameters,
             net_id=NETWORK_ID,
-            handler="get_stake_for_request"
+            handler="get-stake-for-request"
+        )
+        util.report_slack(error_message, SLACK_HOOK)
+        response = util.generate_lambda_response(500, error_message, cors_enabled=True)
+    return response
+
+def get_foundation_members_handler(event, context):
+    try:
+        logger.info(event)
+        valid_event = util.validate_dict(
+            data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_STAKE_FOR_REQUEST_EVENT)
+        if not valid_event:
+            return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
+        path_parameters = event["pathParameters"]
+        response_data = rfai.get_foundation_members()
+        response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
+    except Exception as e:
+        error_message = util.format_error_message(
+            status="failed",
+            error=repr(e),
+            payload=path_parameters,
+            net_id=NETWORK_ID,
+            handler="get-foundation-members"
         )
         util.report_slack(error_message, SLACK_HOOK)
         response = util.generate_lambda_response(500, error_message, cors_enabled=True)

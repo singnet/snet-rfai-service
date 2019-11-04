@@ -1,8 +1,12 @@
+from common.utils import Utils
+from rfai.dao.foundation_member_data_access_object import FoundationMemberDAO
 from rfai.dao.request_data_access_object import RequestDAO
-from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.dao.solution_data_access_object import SolutionDAO
 from rfai.dao.stake_data_access_object import StakeDAO
+from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatus
+
+obj_utils = Utils()
 
 
 class RFAIService:
@@ -11,6 +15,7 @@ class RFAIService:
         self.vote_dao = VoteDAO(repo=repo)
         self.solution_dao = SolutionDAO(repo=repo)
         self.stake_dao = StakeDAO(repo=repo)
+        self.foundation_member_dao = FoundationMemberDAO(repo=repo)
 
     def get_requests(self, status, requester):
         if status.upper() in RFAIStatus.__members__:
@@ -34,3 +39,9 @@ class RFAIService:
     def get_solution_details_for_given_request_id(self, request_id):
         solution_data = self.solution_dao.get_solution_details_for_given_request_id(request_id=request_id)
         return solution_data
+
+    def get_foundation_members(self):
+        foundation_members_data = self.foundation_member_dao.get_foundation_members()
+        for record in foundation_members_data:
+            record["status"] = obj_utils.bits_to_integer(record["status"])
+        return foundation_members_data
