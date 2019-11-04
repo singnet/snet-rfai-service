@@ -7,7 +7,7 @@ plugins:
 service: rfai
 custom:
   pythonRequirements:
-    fileName: requirement.txt
+    fileName: rfai/requirement.txt
     dockerizePip: true
     useDownloadCache: true
     useStaticCache: true
