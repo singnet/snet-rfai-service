@@ -5,7 +5,7 @@ from rfai.config import NETWORK_ID, NETWORK, SLACK_HOOK
 from rfai.constant import REQUIRED_KEYS_FOR_GET_RFAI_EVENT
 from rfai.service.rfai_service import RFAIService
 
-rfai = RFAIService(repo=Repository(net_id=NETWORK_ID, NETWORKS=NETWORK))
+rfai = RFAIService(repo=Repository(NETWORKS=NETWORK))
 util = Utils()
 logger = get_logger(__name__)
 

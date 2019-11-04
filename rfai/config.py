@@ -1,6 +1,5 @@
 NETWORK_ID = 0
 NETWORK = {
-    0: {
         "name": "test",
         "http_provider": "https://ropsten.infura.io",
         "ws_provider": "wss://ropsten.infura.io/ws",
@@ -12,5 +11,4 @@ NETWORK = {
             "DB_PORT": 3306,
         },
     }
-}
 SLACK_HOOK = {}
