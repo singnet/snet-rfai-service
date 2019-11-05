@@ -26,7 +26,10 @@ class RFAIService:
                                                                                 requester=requester)
 
     def get_rfai_summary(self):
-        return {}
+        request_summary = self.request_dao.get_request_status_summary()
+        for record in request_summary:
+            record["status"] = RFAIStatus(int(record["status"])).name
+        return request_summary
 
     def get_vote_details_for_given_request_id(self, request_id):
         vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=request_id)

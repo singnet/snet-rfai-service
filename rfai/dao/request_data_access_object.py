@@ -9,3 +9,7 @@ class RequestDAO:
             "acceptance_criteria, request_actor FROM service_request WHERE requester = %s AND status = %s",
             [requester, status])
         return query_response
+
+    def get_request_status_summary(self):
+        query_response = self.repo.execute("SELECT status, count(*) as request_count FROM service_request GROUP BY status")
+        return query_response
