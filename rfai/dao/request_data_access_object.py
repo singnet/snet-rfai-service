@@ -11,5 +11,5 @@ class RequestDAO:
         return query_response
 
     def get_request_status_summary(self):
-        query_response = self.repo.execute("SELECT status, count(*) as request_count FROM service_request GROUP BY status")
+        query_response = self.repo.execute("SELECT status, expiration, end_submission, end_evaluation FROM service_request")
         return query_response

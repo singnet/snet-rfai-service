@@ -133,14 +133,13 @@ def get_foundation_members_handler(event, context):
             data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_STAKE_FOR_REQUEST_EVENT)
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
-        path_parameters = event["pathParameters"]
         response_data = rfai.get_foundation_members()
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(
             status="failed",
             error=repr(e),
-            payload=path_parameters,
+            payload=None,
             net_id=NETWORK_ID,
             handler="get-foundation-members"
         )
