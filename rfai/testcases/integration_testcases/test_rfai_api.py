@@ -71,8 +71,7 @@ class TestRFAIAPI(unittest.TestCase):
 
     @patch("common.utils.Utils.report_slack")
     def test_get_foundation_members(self, mock_report_slack):
-        event = {"resource": "/foundationmembers", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+        event = {"resource": "/foundationmembers", "httpMethod": "GET"}
         response = get_foundation_members_handler(event=event, context=None)
         print(response)
         assert (response["statusCode"] == 200)
@@ -83,9 +82,10 @@ class TestRFAIAPI(unittest.TestCase):
 
     @patch("common.utils.Utils.report_slack")
     def test_get_rfai_summary(self, mock_report_slack):
-        event = {"resource": "/summary", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+        event = {"resource": "/summary", "httpMethod": "GET"}
         response = rfai_summary_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
+        response_body = json.loads(response["body"])
+        assert (response_body["status"] == "success")
+        assert (response_body["data"] == [{'status': 'OPEN', 'request_count': 1}] )
 
