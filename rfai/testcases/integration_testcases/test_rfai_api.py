@@ -11,7 +11,7 @@ class TestRFAIAPI(unittest.TestCase):
         pass
 
     @patch("common.utils.Utils.report_slack")
-    def test_get_request_for_given_requester(self, mock_report_slack):
+    def test_get_request(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884", "status": "Open"}}
         response = request_handler(event=event, context=None)
