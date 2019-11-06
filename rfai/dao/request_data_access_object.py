@@ -8,7 +8,7 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, row_created FROM service_request WHERE " + part_query,
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE " + part_query,
             part_query_values)
         return query_response
 
