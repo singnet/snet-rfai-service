@@ -30,7 +30,7 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_vote_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/vote", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_vote_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
@@ -41,7 +41,7 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_stake_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/stake", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_stake_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
@@ -55,7 +55,7 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_solution_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/solution", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_solution_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])

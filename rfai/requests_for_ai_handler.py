@@ -66,7 +66,7 @@ def get_vote_for_request_handler(event, context):
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
         path_parameters = event["pathParameters"]
-        response_data = rfai.get_vote_details_for_given_request_id(request_id=path_parameters["request_id"])
+        response_data = rfai.get_vote_details_for_given_request_id(request_id=path_parameters["requestId"])
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(
@@ -89,7 +89,7 @@ def get_solution_for_request_handler(event, context):
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
         path_parameters = event["pathParameters"]
-        response_data = rfai.get_solution_details_for_given_request_id(request_id=path_parameters["request_id"])
+        response_data = rfai.get_solution_details_for_given_request_id(request_id=path_parameters["requestId"])
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(
@@ -112,7 +112,7 @@ def get_stake_for_request_handler(event, context):
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
         path_parameters = event["pathParameters"]
-        response_data = rfai.get_stake_details_for_given_request_id(request_id=path_parameters["request_id"])
+        response_data = rfai.get_stake_details_for_given_request_id(request_id=path_parameters["requestId"])
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(
