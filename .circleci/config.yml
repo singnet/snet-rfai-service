@@ -44,6 +44,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install mysql-client -y
             sudo pip install coverage coveralls pytest boto3
+            mysql -h localhost -u unittest_root -p unittest_pwd < rfai/sql_script/create_table.sql
       - run:
           name: Install dependencies
           command: |
