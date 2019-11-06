@@ -4,7 +4,7 @@ class SolutionDAO:
 
     def get_solution_details_for_given_request_id(self, request_id):
         query_response = self.repo.execute(
-            "SELECT row_id as rfai_solution_id, submitter, doc_uri, claim_amount FROM rfai_solution WHERE request_id = %s",
+            "SELECT row_id as rfai_solution_id, submitter, doc_uri, claim_amount, created_at FROM rfai_solution WHERE request_id = %s",
             [int(request_id)])
         return query_response
 
