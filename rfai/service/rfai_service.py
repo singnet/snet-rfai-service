@@ -43,6 +43,7 @@ class RFAIService:
             record.update({"vote_count": vote_count["vote_count"]})
             record.update({"stake_count": stake_count["stake_count"]})
             record.update({"solution_count": solution_count["solution_count"]})
+            record["row_created"] = str(record["row_created"])
         return requests_data
 
     def get_rfai_summary(self):
@@ -71,16 +72,21 @@ class RFAIService:
 
     def get_stake_details_for_given_request_id(self, request_id):
         stake_data = self.stake_dao.get_stake_details_for_given_request_id(request_id=request_id)
+        for record in stake_data:
+            record["row_created"] = str(record["row_created"])
         return stake_data
 
     def get_solution_details_for_given_request_id(self, request_id):
         solution_data = self.solution_dao.get_solution_details_for_given_request_id(request_id=request_id)
+        for record in solution_data:
+            record["row_created"] = str(record["row_created"])
         return solution_data
 
     def get_foundation_members(self):
         foundation_members_data = self.foundation_member_dao.get_foundation_members()
         for record in foundation_members_data:
             record["status"] = obj_utils.bits_to_integer(record["status"])
+            record["row_created"] = str(record["row_created"])
         return foundation_members_data
 
     def compute_rfai_request_sub_status(self, status, end_submission, end_evaluation, expiration, has_vote=False):
