@@ -2,8 +2,8 @@ import json
 import unittest
 from unittest.mock import patch
 
-from rfai.requests_for_ai_handler import request_handler, get_vote_for_request_handler, get_stake_for_request_handler, \
-    get_solution_for_request_handler, get_foundation_members_handler, rfai_summary_handler
+from rfai.requests_for_ai_handler import request_handler, rfai_summary_handler, get_vote_for_request_handler, \
+    get_solution_for_request_handler, get_stake_for_request_handler, get_foundation_members_handler
 
 
 class TestRFAIAPI(unittest.TestCase):
@@ -30,20 +30,18 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_vote_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/vote", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_vote_for_request_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        print(response_body)
         assert (response_body["data"] == [{'rfai_solution_id': '1', 'vote_count': 1},
                                           {'rfai_solution_id': '2', 'vote_count': 1}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_stake_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/stake", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_stake_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
@@ -57,12 +55,11 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_solution_for_given_request_id(self, mock_report_slack):
         event = {"resource": "/request/1/solution", "httpMethod": "GET",
-                 "pathParameters": {"request_id": 1}}
+                 "pathParameters": {"requestId": 1}}
         response = get_solution_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        print(response_body)
         assert (response_body["data"] == [
             {'rfai_solution_id': 1, 'submitter': '0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b',
              'doc_uri': 'https://beta.singularitynet/service1', 'claim_amount': 10},
@@ -73,12 +70,11 @@ class TestRFAIAPI(unittest.TestCase):
     def test_get_foundation_members(self, mock_report_slack):
         event = {"resource": "/foundationmembers", "httpMethod": "GET"}
         response = get_foundation_members_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        print(response_body)
-        assert (response_body["data"] == [{'member_id': 1, 'member_address': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'status': 1}])
+        assert (response_body["data"] == [
+            {'member_id': 1, 'member_address': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'status': 1}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_rfai_summary(self, mock_report_slack):
@@ -86,6 +82,8 @@ class TestRFAIAPI(unittest.TestCase):
         response = rfai_summary_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
+        print(response_body)
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == [{'status': 'OPEN', 'request_count': 1}] )
-
+        assert (response_body["data"] == {'OPEN': {'count': 1, 'OPEN/EXPIRED': 1}, 'APPROVED': {'count': 0},
+                                          'REJECTED': {'count': 0},
+                                          'CLOSED': {'count': 0}})
