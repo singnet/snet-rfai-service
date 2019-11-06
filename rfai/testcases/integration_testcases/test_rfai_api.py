@@ -11,7 +11,7 @@ class TestRFAIAPI(unittest.TestCase):
         pass
 
     @patch("common.utils.Utils.report_slack")
-    def test_get_request_for_given_requester(self, mock_report_slack):
+    def test_get_request(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884", "status": "Open"}}
         response = request_handler(event=event, context=None)
@@ -25,7 +25,8 @@ class TestRFAIAPI(unittest.TestCase):
              'requester_name': 'Dummy', 'description': 'Detecting faces from various perspective.',
              'git_hub_link': 'http://www.dummy.io/repo',
              'training_data_set_uri': '0xg15BB7b899250a67C02fcEDA18706B79aC997884',
-             'acceptance_criteria': 'This is dummy . All are invited.', 'request_actor': 'Dummy Actor'}])
+             'acceptance_criteria': 'This is dummy . All are invited.', 'request_actor': 'Dummy Actor', 'vote_count': 2,
+             'stake_count': 2, 'solution_count': 2}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_vote_for_given_request_id(self, mock_report_slack):

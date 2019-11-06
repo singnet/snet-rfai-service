@@ -20,26 +20,46 @@ class RFAIService:
         self.stake_dao = StakeDAO(repo=repo)
         self.foundation_member_dao = FoundationMemberDAO(repo=repo)
 
-    def get_requests(self, status, requester):
-        if status.upper() in RFAIStatusCodes.__members__:
-            request_status = RFAIStatusCodes[status.upper()].value
+    def validate_request_filter_parameters(self, params):
+        for param in params:
+            if param in ['requester', 'status', 'request_id']:
+                pass
+            else:
+                raise Exception("Bad query parameters.")
+
+    def get_requests(self, query_string_parameters):
+        status = query_string_parameters.get("status", None)
+        self.validate_request_filter_parameters(params=query_string_parameters.keys())
+        if status is not None and status.upper() in RFAIStatusCodes.__members__:
+            query_string_parameters["status"] = RFAIStatusCodes[status.upper()].value
         else:
             raise Exception("Invalid request status.")
-        return self.request_dao.get_request_data_for_given_requester_and_status(status=request_status,
-                                                                                requester=requester)
+        requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
+            filter_parameter=query_string_parameters)
+        for record in requests_data:
+            vote_count = self.vote_dao.get_votes_count_for_given_request(request_id=record["request_id"])
+            stake_count = self.stake_dao.get_stake_count_for_given_request(request_id=record["request_id"])
+            solution_count = self.solution_dao.get_solution_count_for_given_request(request_id=record["request_id"])
+            record.update({"vote_count": vote_count["vote_count"]})
+            record.update({"stake_count": stake_count["stake_count"]})
+            record.update({"solution_count": solution_count["solution_count"]})
+        return requests_data
 
     def get_rfai_summary(self):
         request_summary_raw = self.request_dao.get_request_status_summary()
         request_summary = {RFAIStatusCodes(0).name: {"count": 0}, RFAIStatusCodes(1).name: {"count": 0},
-                    RFAIStatusCodes(2).name: {"count": 0}, RFAIStatusCodes(4).name: {"count": 0}}
+                           RFAIStatusCodes(2).name: {"count": 0}, RFAIStatusCodes(4).name: {"count": 0}}
         for record in request_summary_raw:
             status_code = int(record["status"])
             status = RFAIStatusCodes(status_code).name
             if status_code == RFAIStatusCodes.OPEN.value or status_code == RFAIStatusCodes.APPROVED.value:
+                vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=record["request_id"])
+                has_vote = True if len(vote_data) > 0 else False
                 sub_status = self.compute_rfai_request_sub_status(status=status,
                                                                   end_submission=int(record["end_submission"]),
                                                                   end_evaluation=int(record["end_evaluation"]),
-                                                                  expiration=int(record["expiration"]))
+                                                                  expiration=int(record["expiration"]),
+                                                                  has_vote=has_vote)
                 request_summary[status][sub_status] = request_summary[status].get(sub_status, 0) + 1
             request_summary[status]["count"] = request_summary[status]["count"] + 1
 
