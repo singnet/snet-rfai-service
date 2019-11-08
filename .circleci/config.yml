@@ -47,7 +47,6 @@ jobs:
             cd rfai
             alembic upgrade head
             cd ..
-          # mysql -h 127.0.0.1 -u unittest_root -punittest_pwd unittest_db < rfai/sql_script/create_table.sql
             mysql -h 127.0.0.1 -u unittest_root -punittest_pwd unittest_db < rfai/testcases/script.sql
       - run:
           name: Install dependencies
