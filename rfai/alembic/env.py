@@ -1,11 +1,18 @@
 from __future__ import with_statement
+
+from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
+
+from rfai.config import NETWORK
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+MYSQL_CONNECTION_STRING = f"mysql+pymysql://{NETWORK['db']['DB_USER']}:{NETWORK['db']['DB_USER']}" \
+                          f"@{NETWORK['db']['DB_HOST']}:{NETWORK['db']['DB_PORT']}/{NETWORK['db']['DB_NAME']}"
+config.set_main_option('sqlalchemy.url', MYSQL_CONNECTION_STRING)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -16,6 +23,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = None
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -63,6 +71,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
