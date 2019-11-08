@@ -10,7 +10,7 @@ from rfai.config import NETWORK
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-MYSQL_CONNECTION_STRING = f"mysql+pymysql://{NETWORK['db']['DB_USER']}:{NETWORK['db']['DB_USER']}" \
+MYSQL_CONNECTION_STRING = f"mysql+pymysql://{NETWORK['db']['DB_USER']}:{NETWORK['db']['DB_PASSWORD']}" \
                           f"@{NETWORK['db']['DB_HOST']}:{NETWORK['db']['DB_PORT']}/{NETWORK['db']['DB_NAME']}"
 config.set_main_option('sqlalchemy.url', MYSQL_CONNECTION_STRING)
 
