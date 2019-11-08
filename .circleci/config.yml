@@ -39,17 +39,20 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
+          name: Install dependencies
+          command: |
+            for requirement_file in `ls */requirement*.txt`;do sudo pip install -r $requirement_file --prefer-binary ;done
+      - run:
           name: Install required packages.
           command: |
             sudo apt-get update
             sudo apt-get install mysql-client -y
-            sudo pip install coverage coveralls pytest boto3
-            mysql -h 127.0.0.1 -u unittest_root -punittest_pwd unittest_db < rfai/sql_script/create_table.sql
+            sudo pip install coverage coveralls pytest boto3 alembic
+            export PYTHONPATH=$PWD
+            cd rfai
+            alembic upgrade head
+            cd ..
             mysql -h 127.0.0.1 -u unittest_root -punittest_pwd unittest_db < rfai/testcases/script.sql
-      - run:
-          name: Install dependencies
-          command: |
-            for requirement_file in `ls */requirement*.txt`;do sudo pip install -r $requirement_file --prefer-binary ;done
       - run:
           name: Run unit tests and integration test
           command: |
