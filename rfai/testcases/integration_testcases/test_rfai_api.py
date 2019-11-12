@@ -2,8 +2,8 @@ import json
 import unittest
 from unittest.mock import patch
 
-from rfai.requests_for_ai_handler import request_handler, get_stake_for_request_handler, \
-    get_solution_for_request_handler, get_vote_for_request_handler, get_foundation_members_handler, rfai_summary_handler
+from rfai.requests_for_ai_handler import get_vote_for_request_handler, rfai_summary_handler, \
+    get_stake_for_request_handler, get_solution_for_request_handler, get_foundation_members_handler, request_handler
 
 
 class TestRFAIAPI(unittest.TestCase):
@@ -36,8 +36,8 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == [{'rfai_solution_id': '1', 'vote_count': 1},
-                                          {'rfai_solution_id': '2', 'vote_count': 1}])
+        assert (response_body["data"] == [{'rfai_solution_id': 1, 'vote_count': 1},
+                                          {'rfai_solution_id': 2, 'vote_count': 1}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_stake_for_given_request_id(self, mock_report_slack):
