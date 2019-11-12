@@ -8,6 +8,12 @@ phases:
       - aws s3 cp s3://${s3_bucket}/configs/${stage}/config.${stage}.json .
       - service docker start
       - npm install rfai/
+      - cd rfai
+      - sudo pip3 install alembic
+      - export PYTHONPATH=`pwd`/..
+      - pip3 install pymysql
+      - alembic upgrade head
+      - cd ..
   build:
     commands:
       - sudo python3 -m compileall *.py
