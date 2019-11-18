@@ -13,10 +13,13 @@ class TestRFAIAPI(unittest.TestCase):
     @patch("common.utils.Utils.report_slack")
     def test_get_request(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
-                 "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884", "status": "Open"}}
+                 "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
+                                           "status": "open_active"}}
         response = request_handler(event=event, context=None)
+        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
+        print(response_body)
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
             {'request_id': 1, 'requester': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'fund_total': 100,
@@ -87,7 +90,11 @@ class TestRFAIAPI(unittest.TestCase):
         response = rfai_summary_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
+        print(response_body)
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == {'OPEN': {'count': 1, 'OPEN/EXPIRED': 1}, 'APPROVED': {'count': 0},
-                                          'REJECTED': {'count': 0},
-                                          'CLOSED': {'count': 0}})
+        assert (response_body["data"] == {'OPEN': 1, 'OPEN_ACTIVE': 1, 'OPEN_EXPIRED': 0, 'APPROVED': 1,
+                                          'APPROVED_ACTIVE': 0, 'APPROVED_SOLUTION_VOTE': 0, 'APPROVED_COMPLETED': 0,
+                                          'APPROVED_EXPIRED': 0, 'REJECTED': 0, 'CLOSED': 0})
+
+if __name__ == '__main__':
+    unittest.main()
