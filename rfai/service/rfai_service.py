@@ -20,22 +20,55 @@ class RFAIService:
         self.stake_dao = StakeDAO(repo=repo)
         self.foundation_member_dao = FoundationMemberDAO(repo=repo)
 
-    def validate_request_filter_parameters(self, params):
-        for param in params:
-            if param in ['requester', 'status', 'request_id']:
-                pass
-            else:
-                raise Exception("Bad query parameters.")
+    def format_filter_params(self, query_parameters):
+        filter_params = {}
+        if "status" in query_parameters.keys():
+            filter_params["status"] = query_parameters["status"]
+        elif "requester" in query_parameters.keys():
+            filter_params["requester"] = query_parameters["requester"]
+        elif "request_id" in query_parameters.keys():
+            filter_params["request_id"] = query_parameters["request_id"]
+        return filter_params
 
     def get_requests(self, query_string_parameters):
         status = query_string_parameters.get("status", None)
-        self.validate_request_filter_parameters(params=query_string_parameters.keys())
+        filter_parameter = self.format_filter_params(query_parameters=query_string_parameters)
         if status is not None and status.upper() in RFAIStatusCodes.__members__:
-            query_string_parameters["status"] = RFAIStatusCodes[status.upper()].value
-        else:
-            raise Exception("Invalid request status.")
-        requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
-            filter_parameter=query_string_parameters)
+            status_code = RFAIStatusCodes[status.upper()].value
+            query_string_parameters["status_code"] = status_code
+            current_block_no = obj_blockchain_utils.get_current_block_no()
+
+            if status_code == RFAIStatusCodes.APPROVED_ACTIVE.value:
+                requests_data = self.request_dao.get_approved_active_request(current_block_no=current_block_no,
+                                                                             filter_parameter=filter_parameter)
+
+            elif status_code == RFAIStatusCodes.APPROVED_SOLUTION_VOTE.value:
+                requests_data = self.request_dao.get_approved_solution_vote_request(current_block_no=current_block_no,
+                                                                                    filter_parameter=filter_parameter)
+
+            elif status_code == RFAIStatusCodes.APPROVED_COMPLETED.value:
+                requests_data = self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
+                                                                                filter_parameter=filter_parameter)
+
+            elif status_code == RFAIStatusCodes.APPROVED_EXPIRED.value:
+                requests_data = self.request_dao.get_approved_solution_vote_request(current_block_no=current_block_no,
+                                                                                    filter_parameter=filter_parameter)
+
+            elif status_code == RFAIStatusCodes.OPEN_ACTIVE.value:
+                requests_data = self.request_dao.get_open_active_request(current_block_no=current_block_no,
+                                                                         filter_parameter=filter_parameter)
+
+            elif status_code == RFAIStatusCodes.OPEN_EXPIRED.value:
+                requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
+                                                                          filter_parameter=filter_parameter)
+
+            else:
+                requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
+                    filter_parameter=filter_parameter)
+        elif status is None:
+            requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
+                filter_parameter=filter_parameter)
+
         for record in requests_data:
             vote_count = self.vote_dao.get_votes_count_for_given_request(request_id=record["request_id"])
             stake_count = self.stake_dao.get_stake_count_for_given_request(request_id=record["request_id"])
@@ -47,22 +80,23 @@ class RFAIService:
         return requests_data
 
     def get_rfai_summary(self):
-        request_summary_raw = self.request_dao.get_request_status_summary()
-        request_summary = {RFAIStatusCodes(0).name: {"count": 0}, RFAIStatusCodes(1).name: {"count": 0},
-                           RFAIStatusCodes(2).name: {"count": 0}, RFAIStatusCodes(4).name: {"count": 0}}
-        for record in request_summary_raw:
-            status_code = int(record["status"])
-            status = RFAIStatusCodes(status_code).name
-            if status_code == RFAIStatusCodes.OPEN.value or status_code == RFAIStatusCodes.APPROVED.value:
-                vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=record["request_id"])
-                has_vote = True if len(vote_data) > 0 else False
-                sub_status = self.compute_rfai_request_sub_status(status=status,
-                                                                  end_submission=int(record["end_submission"]),
-                                                                  end_evaluation=int(record["end_evaluation"]),
-                                                                  expiration=int(record["expiration"]),
-                                                                  has_vote=has_vote)
-                request_summary[status][sub_status] = request_summary[status].get(sub_status, 0) + 1
-            request_summary[status]["count"] = request_summary[status]["count"] + 1
+        request_summary = self.generate_rfai_summary()
+        # request_summary_raw = self.request_dao.get_request_status_summary()
+        # request_summary = {RFAIStatusCodes(0).name: {"count": 0}, RFAIStatusCodes(1).name: {"count": 0},
+        #                    RFAIStatusCodes(2).name: {"count": 0}, RFAIStatusCodes(4).name: {"count": 0}}
+        # for record in request_summary_raw:
+        #     status_code = int(record["status"])
+        #     status = RFAIStatusCodes(status_code).name
+        #     if status_code == RFAIStatusCodes.OPEN.value or status_code == RFAIStatusCodes.APPROVED.value:
+        #         vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=record["request_id"])
+        #         has_vote = True if len(vote_data) > 0 else False
+        #         sub_status = self.compute_rfai_request_sub_status(status=status,
+        #                                                           end_submission=int(record["end_submission"]),
+        #                                                           end_evaluation=int(record["end_evaluation"]),
+        #                                                           expiration=int(record["expiration"]),
+        #                                                           has_vote=has_vote)
+        #         request_summary[status][sub_status] = request_summary[status].get(sub_status, 0) + 1
+        #     request_summary[status]["count"] = request_summary[status]["count"] + 1
 
         return request_summary
 
@@ -89,22 +123,50 @@ class RFAIService:
             record["created_at"] = str(record["created_at"])
         return foundation_members_data
 
-    def compute_rfai_request_sub_status(self, status, end_submission, end_evaluation, expiration, has_vote=False):
+    # def compute_rfai_request_sub_status(self, status, end_submission, end_evaluation, expiration, has_vote=False):
+    #     current_block_no = obj_blockchain_utils.get_current_block_no()
+    #     if status == RFAIStatusCodes(0).name:
+    #         if current_block_no > expiration:
+    #             return RFAIStatus.OPEN.value.EXPIRED.value
+    #         else:
+    #             return RFAIStatus.OPEN.value.ACTIVE.value
+    #     elif status == RFAIStatusCodes(1).name:
+    #         if current_block_no <= end_submission:
+    #             return RFAIStatus.APPROVED.value.ACTIVE.value
+    #         elif end_submission <= current_block_no <= end_evaluation:
+    #             return RFAIStatus.APPROVED.value.SOLUTION_VOTE.value
+    #         elif end_evaluation <= current_block_no <= expiration:
+    #             return RFAIStatus.APPROVED.value.COMPLETED.value
+    #         elif current_block_no >= expiration and has_vote:
+    #             return RFAIStatus.APPROVED.value.COMPLETED.value
+    #         elif current_block_no >= expiration:
+    #             return RFAIStatus.APPROVED.value.EXPIRED.value
+    #     raise Exception("Unable to compute RFAI request sub status")
+
+    def generate_rfai_summary(self):
+        filter_parameter = {}
         current_block_no = obj_blockchain_utils.get_current_block_no()
-        if status == RFAIStatusCodes(0).name:
-            if current_block_no > expiration:
-                return RFAIStatus.OPEN.value.EXPIRED.value
-            else:
-                return RFAIStatus.OPEN.value.ACTIVE.value
-        elif status == RFAIStatusCodes(1).name:
-            if current_block_no <= end_submission:
-                return RFAIStatus.APPROVED.value.ACTIVE.value
-            elif current_block_no >= end_submission and current_block_no <= end_evaluation:
-                return RFAIStatus.APPROVED.value.SOLUTION_VOTE.value
-            elif current_block_no >= end_evaluation and current_block_no <= expiration:
-                return RFAIStatus.APPROVED.value.COMPLETED.value
-            elif current_block_no >= expiration and has_vote:
-                return RFAIStatus.APPROVED.value.COMPLETED.value
-            elif current_block_no >= expiration:
-                return RFAIStatus.APPROVED.value.EXPIRED.value
-        raise Exception("Unable to compute RFAI request sub status")
+        rfai_summary = {
+            "OPEN": len(
+                self.request_dao.get_request_data_for_given_requester_and_status(filter_parameter={"status": "open"})),
+            "OPEN_ACTIVE": len(self.request_dao.get_open_active_request(current_block_no=current_block_no,
+                                                                        filter_parameter=filter_parameter)),
+            "OPEN_EXPIRED": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
+                                                                          filter_parameter=filter_parameter)),
+            "APPROVED": len(self.request_dao.get_request_data_for_given_requester_and_status(
+                filter_parameter={"status": "approved"})),
+            "APPROVED_ACTIVE": len(self.request_dao.get_approved_active_request(current_block_no=current_block_no,
+                                                                                filter_parameter=filter_parameter)),
+            "APPROVED_SOLUTION_VOTE": len(self.request_dao.get_approved_solution_vote_request(
+                current_block_no=current_block_no,
+                filter_parameter=filter_parameter)),
+            "APPROVED_COMPLETED": len(self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
+                                                                                      filter_parameter=filter_parameter)),
+            "APPROVED_EXPIRED": len(self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
+                                                                                  filter_parameter=filter_parameter)),
+            "REJECTED": len(self.request_dao.get_request_data_for_given_requester_and_status(
+                filter_parameter={"status": RFAIStatusCodes.REJECTED.value})),
+            "CLOSED": len(self.request_dao.get_request_data_for_given_requester_and_status(
+                filter_parameter={"status": RFAIStatusCodes.CLOSED.value}))
+        }
+        return rfai_summary
