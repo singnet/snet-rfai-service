@@ -51,7 +51,7 @@ class RFAIService:
                                                                                 filter_parameter=filter_parameter)
 
             elif status_code == RFAIStatusCodes.APPROVED_EXPIRED.value:
-                requests_data = self.request_dao.get_approved_solution_vote_request(current_block_no=current_block_no,
+                requests_data = self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
                                                                                     filter_parameter=filter_parameter)
 
             elif status_code == RFAIStatusCodes.OPEN_ACTIVE.value:

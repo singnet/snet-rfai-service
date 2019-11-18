@@ -16,10 +16,8 @@ class TestRFAIAPI(unittest.TestCase):
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
                                            "status": "open_active"}}
         response = request_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
-        print(response_body)
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
             {'request_id': 1, 'requester': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'fund_total': 100,
@@ -49,7 +47,6 @@ class TestRFAIAPI(unittest.TestCase):
         response = get_stake_for_request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
-        print(f"\n {response_body}")
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
             {'stake_member': '0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC', 'stake_amount': 100, 'claim_back_amount': 60,
@@ -90,11 +87,16 @@ class TestRFAIAPI(unittest.TestCase):
         response = rfai_summary_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
-        print(response_body)
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == {'OPEN': 1, 'OPEN_ACTIVE': 1, 'OPEN_EXPIRED': 0, 'APPROVED': 1,
-                                          'APPROVED_ACTIVE': 0, 'APPROVED_SOLUTION_VOTE': 0, 'APPROVED_COMPLETED': 0,
-                                          'APPROVED_EXPIRED': 0, 'REJECTED': 0, 'CLOSED': 0})
+        assert (response_body["data"]["OPEN"] == 1)
+        assert (response_body["data"]["OPEN_ACTIVE"] == 1)
+        assert (response_body["data"]["APPROVED"] == 1)
+        assert (response_body["data"]["APPROVED_ACTIVE"] == 0)
+        assert (response_body["data"]["APPROVED_SOLUTION_VOTE"] == 0)
+        assert (response_body["data"]["APPROVED_COMPLETED"] == 0)
+        assert (response_body["data"]["APPROVED_EXPIRED"] == 1)
+        assert (response_body["data"]["REJECTED"] == 0)
+        assert (response_body["data"]["CLOSED"] == 0)
 
 if __name__ == '__main__':
     unittest.main()
