@@ -41,7 +41,7 @@ package:
     - .serverless/**
     - requirement.txt
     - sql_script/**
-    - Readme.md
+    - README.md
     - package.json
     - Dockerfile
     - License
@@ -222,3 +222,19 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
               - x-requested-with
+
+  create_request_consumer:
+    warmup: true
+    handler: rfai/handler/consumer_handlers.create_request_consumer_handler
+    role: ${file(./config.${self:provider.stage}.json):ROLE}
+    tags:
+      Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
+      Team: ${file(./config.${self:provider.stage}.json):TEAM}
+      Owner: ${file(./config.${self:provider.stage}.json):OWNER}
+    vpc:
+      securityGroupIds:
+        - ${file(./config.${self:provider.stage}.json):SG1}
+        - ${file(./config.${self:provider.stage}.json):SG2}
+      subnetIds:
+        - ${file(./config.${self:provider.stage}.json):VPC1}
+        - ${file(./config.${self:provider.stage}.json):VPC2}

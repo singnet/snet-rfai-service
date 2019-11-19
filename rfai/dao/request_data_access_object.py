@@ -40,21 +40,25 @@ class RequestDAO:
 
     def get_approved_solution_vote_request(self, current_block_no, filter_parameter):
         part_query, part_query_values = generate_part_query_for_filter_params(filter_parameter=filter_parameter)
+        if part_query != "":
+            part_query = " AND " + part_query
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
             "acceptance_criteria, request_actor, created_at FROM service_request "
-            "WHERE end_submission > %s AND end_evaluation <= %s" + part_query,
+            "WHERE end_submission < %s AND end_evaluation >= %s" + part_query,
             [current_block_no, current_block_no] + part_query_values)
         return query_response
 
     def get_approved_completed_request(self, current_block_no, filter_parameter):
         part_query, part_query_values = generate_part_query_for_filter_params(filter_parameter=filter_parameter)
+        if part_query != "":
+            part_query = " AND " + part_query
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE end_evaluation > %s AND"
-            " expiration <= %s" + part_query, [current_block_no, current_block_no] + part_query_values)
+            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE end_evaluation < %s AND"
+            " expiration >= %s" + part_query, [current_block_no, current_block_no] + part_query_values)
         return query_response
 
     def get_approved_expired_request(self, current_block_no, filter_parameter):
@@ -64,7 +68,7 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE expiration > %s" + part_query,
+            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE expiration < %s" + part_query,
             [current_block_no] + part_query_values)
         return query_response
 
