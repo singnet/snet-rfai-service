@@ -10,12 +10,12 @@ class FoundationMemberDAO:
             "SELECT member_id, member_address, status, created_at FROM foundation_member")
         return query_response
 
-    def add_foundation_member(self, member_id, member_address, status, request_actor, created_at):
+    def add_foundation_member(self, role, member_address, status, request_actor, created_at):
         query_response = self.repo.execute(
-            "INSERT INTO foundation_member (member_id, member_address, status, request_actor, created_at, row_created, "
+            "INSERT INTO foundation_member (role,member_address, status, request_actor, created_at, row_created, "
             "row_updated) "
             "VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-            [member_id, member_address, status, request_actor, created_at])
+            [role, member_address, status, request_actor, created_at])
 
         return query_response[0]
 

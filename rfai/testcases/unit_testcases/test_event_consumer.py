@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from common.repository import Repository
 from rfai.config import NETWORK_ID, NETWORK, IPFS_URL
 from rfai.consumers.rfai_request_event_consumer import RFAICreateRequestEventConsumer, RFAIFundRequestEventConsumer, \
-    RFAIApproveRequestEventConsumer
+    RFAIApproveRequestEventConsumer, RFAIAddFoundationMember
 from rfai.dao.request_data_access_object import RequestDAO
 
 
@@ -93,7 +93,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "row_created": "2019-11-18 14:52:52"
         } ,"name" : "AddFoundationMember"}
 
-        pass
+        RFAIAddFoundationMember(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def add_solution_request_event_consumer(self):
         event = {"data":{

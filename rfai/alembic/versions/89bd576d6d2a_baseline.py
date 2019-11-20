@@ -1,7 +1,7 @@
 """baseline
 
 Revision ID: 89bd576d6d2a
-Revises: 
+Revises:
 Create Date: 2019-11-07 14:37:50.121706
 
 """
@@ -44,6 +44,7 @@ def upgrade():
             `member_id`	int(11) NOT NULL,
             `member_address`	varchar(50) NOT NULL,
             `status`	bit(1),
+            `role`	bit(1),
             `request_actor`	varchar(50) DEFAULT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
