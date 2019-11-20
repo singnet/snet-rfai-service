@@ -76,10 +76,11 @@ class TestRFAIAPI(unittest.TestCase):
         response = get_foundation_members_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
+        print(response_body)
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == [
-            {'member_id': 1, 'member_address': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'status': 1,
-             'created_at': '2019-11-04 17:34:28'}])
+        assert (response_body["data"]["member_address"] == "0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc")
+        assert (response_body["data"]["role"] == 0)
+        assert (response_body["data"]["status"] == 1)
 
     @patch("common.utils.Utils.report_slack")
     def test_get_rfai_summary(self, mock_report_slack):
