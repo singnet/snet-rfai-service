@@ -44,7 +44,6 @@ def upgrade():
             `member_address`	varchar(50) NOT NULL,
             `role`	bit(1),
             `status`	bit(1),
-            `role`	bit(1),
             `request_actor`	varchar(50) DEFAULT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
