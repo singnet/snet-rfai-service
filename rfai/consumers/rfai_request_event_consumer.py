@@ -167,8 +167,7 @@ class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
         role = event_data['role']
         status = event_data['status']
         # check for last attribute caretaed_at rigtn ow set as current time . aslo this should be upsert query
-        self._rfai_foundation_member_repository.add_foundation_member(role, member, status, actor,
-                                                                      datetime.datetime.utcnow())
+        self._rfai_foundation_member_repository.create_or_update_foundation_member(member, role, status, actor, datetime.datetime.utcnow())
 
 
 class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
