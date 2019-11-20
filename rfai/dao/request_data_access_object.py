@@ -12,6 +12,13 @@ class RequestDAO:
     def __init__(self, repo):
         self.repo = repo
 
+
+    def get_event(self):
+        result= self.repo.execute("select * from rfai_events_raw")
+
+        return result
+
+
     def get_request_data_for_given_requester_and_status(self, filter_parameter):
         part_query, part_query_values = generate_part_query_for_filter_params(filter_parameter=filter_parameter)
         if part_query != "":
