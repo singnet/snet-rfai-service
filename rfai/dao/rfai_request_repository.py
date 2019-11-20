@@ -1,0 +1,2 @@
+class RFAIRequestRepository:
+    pass
