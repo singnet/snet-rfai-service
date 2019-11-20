@@ -26,7 +26,7 @@ class RFAIEventConsumer(EventConsumer):
 
     def _get_rfai_contract(self):
         base_contract_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'singularitynet-rfai-contracts'))
+            os.path.join(os.path.dirname(__file__), '..','..','node_modules', 'singularitynet-rfai-contracts'))
         rfai_contract = self._blockchain_util.get_contract_instance(base_contract_path, "RFAI", self._net_id)
 
         return rfai_contract
