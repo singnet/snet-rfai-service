@@ -120,6 +120,7 @@ class RFAIService:
         foundation_members_data = self.foundation_member_dao.get_foundation_members()
         for record in foundation_members_data:
             record["status"] = obj_utils.bits_to_integer(record["status"])
+            record["role"] = obj_utils.bits_to_integer(record["role"])
             record["created_at"] = str(record["created_at"])
         return foundation_members_data
 

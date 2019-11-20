@@ -41,15 +41,15 @@ def upgrade():
         """)
     conn.execute("""CREATE TABLE `foundation_member` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
-            `member_id`	int(11) NOT NULL,
             `member_address`	varchar(50) NOT NULL,
+            `role`	bit(1),
             `status`	bit(1),
             `request_actor`	varchar(50) DEFAULT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_member` (`member_id`));
+            UNIQUE KEY `uq_member` (`member_address`));
         """)
     conn.execute("""CREATE TABLE `rfai_stake` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
