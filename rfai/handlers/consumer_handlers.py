@@ -20,7 +20,7 @@ def create_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -34,7 +34,7 @@ def extend_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -47,7 +47,7 @@ def approve_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -61,7 +61,7 @@ def fund_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -75,7 +75,7 @@ def add_solution_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -90,7 +90,7 @@ def vote_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -104,7 +104,7 @@ def claim_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -118,7 +118,7 @@ def close_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -133,7 +133,7 @@ def reject_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -146,7 +146,7 @@ def claim_back_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -160,6 +160,6 @@ def add_foundation_member_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack("ERROR", f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
