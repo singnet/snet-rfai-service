@@ -26,7 +26,7 @@ class RFAIEventConsumer(EventConsumer):
 
     def _get_rfai_contract(self):
         base_contract_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', 'node_modules', 'singularitynet-rfai-contracts'))
+            os.path.join(os.path.dirname(__file__), '..','..','node_modules', 'singularitynet-rfai-contracts'))
         rfai_contract = self._blockchain_util.get_contract_instance(base_contract_path, "RFAI", self._net_id)
 
         return rfai_contract
@@ -139,7 +139,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
 
         request_id = event_data['requestId']
         staker = event_data['staker']
-        amount = event_data['nameamount']
+        amount = event_data['name']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
 
