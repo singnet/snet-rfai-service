@@ -95,6 +95,9 @@ class BlockChainUtil(object):
             json_file = "Registry.json"
         elif contract_name == "MPE":
             json_file = "MultiPartyEscrow.json"
+
+        elif contract_name == "RFAI":
+            json_file = "ServiceRequest.json"
         else:
             raise Exception("Invalid contract Type {}".format(contract_name))
 
@@ -102,3 +105,9 @@ class BlockChainUtil(object):
         contract_abi_path = base_path + "/{}/{}".format("abi", json_file)
 
         return contract_network_path, contract_abi_path
+
+    def call_contract_function(self,contract,contract_function,positional_inputs):
+        function=getattr(contract.functions,contract_function)
+        result=function(positional_inputs).call()
+        return result
+

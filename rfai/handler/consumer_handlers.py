@@ -3,7 +3,6 @@ from common.logger import get_logger
 from common.utils import Utils
 from rfai.config import SLACK_HOOK
 
-# from rfai.consumers.consumer_factory import get_create_request_event_consumer
 logger = get_logger(__name__)
 util = Utils()
 
