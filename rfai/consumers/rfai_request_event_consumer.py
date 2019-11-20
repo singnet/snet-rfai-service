@@ -5,8 +5,10 @@ from common.ipfs_util import IPFSUtil
 from rfai.config import NETWORK
 from rfai.consumers.event_consumer import EventConsumer
 from rfai.dao.request_data_access_object import RequestDAO
-
+import datetime
 from common.repository import Repository
+from rfai.dao.stake_data_access_object import StakeDAO
+from rfai.rfai_status import  RFAIStatusCodes
 
 logger = get_logger(__name__)
 
@@ -47,28 +49,39 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
 
-    def __init__(self, ws_provider, ipfs_url, ipfs_port):
-        super().__init__(ws_provider, ipfs_url, ipfs_port)
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
-
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         requester = event_data['requester']
         expiration = event_data['expiration']
         amount = event_data['amount']
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
-        rfai_metadata = self._get_rfai_metadata_from_ipfs(metadata_hash)
 
-        self._process_create_request_event(request_id, requester, expiration, amount, rfai_metadata)
+        self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
 
-    def _process_create_request_event(self, request_id, requester, expiration, amount, rfai_metadata):
+    def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
 
-        try:
-            print(2)
-        except Exception as e:
+        [found, requestId, requester, totalFund, documentURI, expiration, endSubmission, endEvaluation, status,
+         stakeMembers, submitters] = self._get_rfai_service_request_by_id(request_id)
+        rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
 
-            raise e
+        title = rfai_metadata['title']
+        requestor_name = requester
+        description = rfai_metadata['description']
+        git_hub_link = ''
+        training_data_set_uri = rfai_metadata['training-dataset']
+        acceptance_criteria = rfai_metadata['acceptance-criteria']
+        request_actor = ''
+        # datetime.datetime.strptime(rfai_metadata['created'], '%Y-%m-%d')
+        created_at = rfai_metadata['created']
+
+        self._rfai_request_repository.create_request(request_id, requester, totalFund, metadata_hash, expiration,
+                                                     endSubmission, endEvaluation, status, title, requestor_name,
+                                                     description, git_hub_link, training_data_set_uri,
+                                                     acceptance_criteria, request_actor, created_at)
 
 
 class ExtendRequestEventConsumer(RFAIEventConsumer):
@@ -85,24 +98,7 @@ class ExtendRequestEventConsumer(RFAIEventConsumer):
         print(result)
 
 
-class ApproveRequestEventConsumer(RFAIEventConsumer):
-
-    def on_event(self, event):
-        # request_id, request_blockchain_data, request_ipfs_data, request_document_uri = \
-        #     self._get_request_details_from_blockchain(event)
-        # self._process_approve_request_event(request_id)
-        pass
-
-    def _process_approve_request_event(self, request_id):
-        try:
-            pass
-        except Exception as e:
-            logger.exception(str(e))
-            self._rfai_request_repository.rollback_transaction()
-            raise e
-
-
-class RFAIFundRequestEventConsumer(RFAIEventConsumer):
+class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
 
@@ -110,10 +106,46 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        # need to change this whenever we clean up it should nto be tied with db column nanme
         event_data = self._get_event_data(event)
+
         request_id = event_data['requestId']
-        result = self._get_rfai_service_request_by_id(request_id)
-        print(result)
+        approver = event_data['approver']
+        endSubmission = event_data['endSubmission']
+        endEvaluation = event_data['endEvaluation']
+        expiration = event_data['expiration']
+
+        filter_params = {"status": RFAIStatusCodes.APPROVED.value, "request_actor": approver,
+                         "end_submission": endSubmission, "end_evaluation": endEvaluation, "expiration": expiration}
+        self._rfai_request_repository.update_request_for_given_request_id(request_id,filter_params)
+
+        # from where we will get claim back amount
+
+
+class RFAIFundRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _rfai_request_repository = RequestDAO(_connection)
+    _stake_dao_repository = StakeDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+
+        request_id = event_data['requestId']
+        staker = event_data['staker']
+        amount = event_data['amount']
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+
+        metadata_hash = self._get_metadata_hash(document_uri)
+        rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
+        created_at = rfai_metadata['created']
+
+        # from where we will get claim back amount
+
+        self._stake_dao_repository.create_stake(request_id, staker, amount, 0, created_at)
 
 
 class RFAIAddFoundationMember(RFAIEventConsumer):
@@ -128,6 +160,9 @@ class RFAIAddFoundationMember(RFAIEventConsumer):
         request_id = event_data['requestId']
         result = self._get_rfai_service_request_by_id(request_id)
         print(result)
+
+
+
 
 
 class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
