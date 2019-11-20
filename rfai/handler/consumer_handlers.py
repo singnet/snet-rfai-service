@@ -11,6 +11,7 @@ util = Utils()
 def create_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Create Request Event {event}")
+        print(event)
         # create_request_event_consumer = get_create_request_event_consumer(event)
         # create_request_event_consumer.on_event(event)
 

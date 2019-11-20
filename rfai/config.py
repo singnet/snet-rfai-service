@@ -12,3 +12,4 @@ NETWORK = {
         },
     }
 SLACK_HOOK = {}
+IPFS_URL = ""
