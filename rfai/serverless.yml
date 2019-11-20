@@ -225,7 +225,7 @@ functions:
 
   create_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.create_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.create_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -241,7 +241,7 @@ functions:
 
   extend_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.extend_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.extend_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -257,7 +257,7 @@ functions:
 
   approve_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.approve_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.approve_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -273,7 +273,7 @@ functions:
 
   fund_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.fund_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.fund_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -289,7 +289,7 @@ functions:
 
   add_solution_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.add_solution_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.add_solution_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -305,7 +305,7 @@ functions:
 
   vote_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.vote_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.vote_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -321,7 +321,7 @@ functions:
         -
   claim_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.claim_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.claim_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -337,7 +337,7 @@ functions:
 
   close_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.close_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.close_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -353,7 +353,7 @@ functions:
 
   reject_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.reject_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.reject_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -369,7 +369,7 @@ functions:
 
   claim_back_request_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.claim_back_request_consumer_handler
+    handler: rfai/handlers/consumer_handlers.claim_back_request_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}
@@ -385,7 +385,7 @@ functions:
 
   add_foundation_member_consumer:
     warmup: true
-    handler: rfai/handler/consumer_handlers.add_foundation_member_consumer_handler
+    handler: rfai/handlers/consumer_handlers.add_foundation_member_consumer_handler
     role: ${file(./config.${self:provider.stage}.json):ROLE}
     tags:
       Environment: ${file(./config.${self:provider.stage}.json):ENVIRONMENT}

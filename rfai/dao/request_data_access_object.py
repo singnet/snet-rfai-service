@@ -1,6 +1,8 @@
 from rfai.dao.rfai_request_repository import generate_sub_query_for_update_parameters, \
     generate_sub_query_for_filter_params
 
+from datetime import datetime as dt
+
 
 class RequestDAO:
     def __init__(self, repo):
@@ -101,19 +103,18 @@ class RequestDAO:
 
         query_response = self.repo.execute(
             "INSERT INTO service_request (request_id, requester, fund_total, documentURI,  expiration, end_submission, "
-            "end_evaluation, status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            ", request_actor, created_at, row_created, row_updated) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, "
-            "CURRENT_TIMESTAMP)",
+            "end_evaluation, status, request_title, requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria , "
+            " request_actor, created_at, row_created, row_updated) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)",
             [request_id, requester, fund_total, document_uri, expiration, end_submission, end_evaluation, status,
              request_title, requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria,
-             request_actor, created_at])
+             request_actor, created_at, dt.utcnow(), dt.utcnow()])
 
         return query_response[0]
 
     def update_request_for_given_request_id(self, request_id, update_parameters):
         sub_query, sub_query_values = generate_sub_query_for_update_parameters(update_parameters=update_parameters)
-        query_response = self.repo.execute("UPDATE service_request SET " + update_parameters + " WHERE request_id = %s",
+        query_response = self.repo.execute("UPDATE service_request SET " + sub_query + " WHERE request_id = %s",
                                            sub_query_values + [request_id])
         return query_response[0]
 
