@@ -41,8 +41,8 @@ def upgrade():
         """)
     conn.execute("""CREATE TABLE `foundation_member` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
-            `member_id`	int(11) NOT NULL,
             `member_address`	varchar(50) NOT NULL,
+            `role`	bit(1),
             `status`	bit(1),
             `request_actor`	varchar(50) DEFAULT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
