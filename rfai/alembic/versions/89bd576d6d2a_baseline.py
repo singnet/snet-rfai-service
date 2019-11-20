@@ -49,7 +49,7 @@ def upgrade():
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_member` (`member_id`));
+            UNIQUE KEY `uq_member` (`member_address`));
         """)
     conn.execute("""CREATE TABLE `rfai_stake` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
