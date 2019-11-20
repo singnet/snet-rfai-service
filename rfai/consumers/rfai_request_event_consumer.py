@@ -139,7 +139,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
 
         request_id = event_data['requestId']
         staker = event_data['staker']
-        amount = event_data['name']
+        amount = event_data['amount']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
 
@@ -161,7 +161,6 @@ class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
 
     def on_event(self, event):
         event_data = self._get_event_data(event)
-        request_id = event_data['requestId']
         member = event_data['member']
         actor = event_data['actor']
         role = event_data['role']
