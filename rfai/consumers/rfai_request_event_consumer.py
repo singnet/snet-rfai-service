@@ -83,7 +83,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
                                                      acceptance_criteria, request_actor, created_at)
 
 
-class ExtendRequestEventConsumer(RFAIEventConsumer):
+class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
 
@@ -91,10 +91,15 @@ class ExtendRequestEventConsumer(RFAIEventConsumer):
         super().__init__(ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        # need to change this whenever we clean up it should nto be tied with db column name
         event_data = self._get_event_data(event)
+
+        expiration = event_data['expiration']
+        requester = event_data['requester']
         request_id = event_data['requestId']
-        result = self._get_rfai_service_request_by_id(request_id)
-        print(result)
+
+        filter_params = {"expiration": expiration}
+        self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
 
 
 class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
@@ -147,7 +152,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         self._stake_dao_repository.create_stake(request_id, staker, amount, 0, created_at)
 
 
-class RFAIAddFoundationMember(RFAIEventConsumer):
+class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_foundation_member_repository = FoundationMemberDAO(_connection)
 
@@ -158,11 +163,13 @@ class RFAIAddFoundationMember(RFAIEventConsumer):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         member = event_data['member']
-        actor= event_data['actor']
-        role=event_data['role']
-        status=event_data['status']
-        #check for last attribute caretaed_at rigtn ow set as current time . aslo this should be upsert query
-        self._rfai_foundation_member_repository.add_foundation_member(role, member, status, actor, datetime.datetime.utcnow())
+        actor = event_data['actor']
+        role = event_data['role']
+        status = event_data['status']
+        # check for last attribute caretaed_at rigtn ow set as current time . aslo this should be upsert query
+        self._rfai_foundation_member_repository.add_foundation_member(role, member, status, actor,
+                                                                      datetime.datetime.utcnow())
+
 
 class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
@@ -178,7 +185,7 @@ class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
         print(result)
 
 
-class RFAIRejectRequestEvent(RFAIEventConsumer):
+class RFAIRejectRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
 
@@ -188,5 +195,11 @@ class RFAIRejectRequestEvent(RFAIEventConsumer):
     def on_event(self, event):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
-        result = self._get_rfai_service_request_by_id(request_id)
-        print(result)
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        self._update_rfai_request_status_and_actor(request_id=request_id, status=RFAIStatusCodes.REJECTED.value,
+                                                   request_actor=event_data["actor"])
+
+    def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
+        self._rfai_request_repository.update_request_for_given_request_id(request_id=request_id, update_parameters={
+            "status": status, "request_actor": request_actor})

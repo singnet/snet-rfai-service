@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from common.repository import Repository
 from rfai.config import NETWORK_ID, NETWORK, IPFS_URL
 from rfai.consumers.rfai_request_event_consumer import RFAICreateRequestEventConsumer, RFAIFundRequestEventConsumer, \
-    RFAIApproveRequestEventConsumer, RFAIAddFoundationMember
+    RFAIApproveRequestEventConsumer, RFAIExtendRequestEventConsumer
 from rfai.dao.request_data_access_object import RequestDAO
 
 
@@ -31,8 +31,8 @@ class TestOrganizationEventConsumer(unittest.TestCase):
         }, "name": "CreateRequest"}
 
         rfai_metadat = '{"title": "Autonomous AI Infra", "description": "Autonomous AI Infra for inference", "documentURI": "https://github.com/ksridharbabuus/A1", "training-dataset": "https://github.com/ksridharbabuus/A1", "acceptance-criteria": "Working solution in marketplace in given time", "created": "2019-11-14"}'
-        #RFAICreateRequestEventConsumer().on_event(event)
-        #RFAICreateRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        # RFAICreateRequestEventConsumer().on_event(event)
+        # RFAICreateRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def test_rfai_fund_request_event_consumer(self):
         event = {"data": {
@@ -56,11 +56,26 @@ class TestOrganizationEventConsumer(unittest.TestCase):
                                '0x9c302750c50307D3Ad88eaA9a6506874a15cE4Cb'],
                               ['0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d']]
 
-        #RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        # RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def extend_request_event_Consumer(self):
-        # no events
-        pass
+        events = {"data":{
+            "row_id": 23,
+            "block_no": 6812889,
+            "event": "ExtendRequest",
+            "json_str": "{'requestId': 4, 'requester': '0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0', 'expiration': 7348080}",
+            "processed": 1,
+            "transactionHash": "b'\\x1c\\x1e\\xb98\\xaa7W\\xb5J\\xb5\\xab\\xee^\\xe7\\x95\\xce\\x13\\x08\\x86\\x8a\\x1c\\xc9\\x19\\xe1SE\\xf9\\xb2Z\\xc1X\\xb7'",
+            "logIndex": "49",
+            "error_code": 200,
+            "error_msg": "",
+            "row_updated": "2019-11-20 13:16:25",
+            "row_created": "2019-11-20 13:16:25"
+        },"name":"ExtendRequest"}
+
+        RFAIExtendRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+
+
 
     def test_approve_request_event_consumer(self):
         event = {"data": {
@@ -76,10 +91,10 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "row_updated": "2019-11-18 14:52:56",
             "row_created": "2019-11-18 14:52:56"
         }, "name": "ApproveRequest"}
-        #RFAIApproveRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        # RFAIApproveRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def add_foundation_memeber_event_consumer(self):
-        event = {"data":{
+        event = {"data": {
             "row_id": 1,
             "block_no": 6773900,
             "event": "AddFoundationMember",
@@ -91,12 +106,12 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "error_msg": "",
             "row_updated": "2019-11-18 14:52:52",
             "row_created": "2019-11-18 14:52:52"
-        } ,"name" : "AddFoundationMember"}
+        }, "name": "AddFoundationMember"}
 
         RFAIAddFoundationMember(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def add_solution_request_event_consumer(self):
-        event = {"data":{
+        event = {"data": {
             "row_id": 19,
             "block_no": 6774405,
             "event": "AddSolutionRequest",
@@ -108,7 +123,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "error_msg": "",
             "row_updated": "2019-11-18 14:53:03",
             "row_created": "2019-11-18 14:53:03"
-        },"name":"AddSolutionRequest"}
+        }, "name": "AddSolutionRequest"}
 
     def reject_request_event_consumer(self):
         event = {

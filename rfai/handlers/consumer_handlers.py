@@ -2,13 +2,15 @@ from common.constant import StatusCode
 from common.logger import get_logger
 from common.utils import Utils
 from rfai.config import SLACK_HOOK, NETWORK_ID, NETWORK, IPFS_URL
-from rfai.consumers.rfai_request_event_consumer import RFAIApproveRequestEventConsumer, RFAICreateRequestEventConsumer
+from rfai.consumers.rfai_request_event_consumer import RFAIApproveRequestEventConsumer, RFAICreateRequestEventConsumer, \
+    RFAIRejectRequestEventConsumer, RFAIAddSolutionRequestEventConsumer, RFAIAddFoundationMemberEventConsumer, \
+    RFAIFundRequestEventConsumer, RFAIExtendRequestEventConsumer
 
 logger = get_logger(__name__)
 util = Utils()
 
 
-def rfai_create_request_consumer_handler(event, context):
+def create_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Create Request Event {event}")
 
@@ -23,11 +25,11 @@ def rfai_create_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_extend_request_consumer_handler(event, context):
+def extend_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Extend Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        RFAIExtendRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -37,7 +39,7 @@ def rfai_extend_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_approve_request_consumer_handler(event, context):
+def approve_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Approve Request Event {event}")
         RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
@@ -50,11 +52,11 @@ def rfai_approve_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_fund_request_consumer_handler(event, context):
+def fund_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Fund Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        RFAIFundRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -64,12 +66,12 @@ def rfai_fund_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_add_solution_request_consumer_handler(event, context):
+def add_solution_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Add Solution Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
 
+        RFAIAddSolutionRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
@@ -78,11 +80,12 @@ def rfai_add_solution_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_vote_request_consumer_handler(event, context):
+def vote_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Vote Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+
+        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        #     event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -92,11 +95,11 @@ def rfai_vote_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_claim_request_consumer_handler(event, context):
+def claim_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Claim Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        #     event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -106,11 +109,11 @@ def rfai_claim_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_close_request_consumer_handler(event, context):
+def close_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Close Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        #     event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -120,11 +123,12 @@ def rfai_close_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_reject_request_consumer_handler(event, context):
+def reject_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Reject Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        RFAIRejectRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
+
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -134,12 +138,11 @@ def rfai_reject_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_claim_back_request_consumer_handler(event, context):
+def claim_back_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Claim Back Request Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
-
+        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        #     event)
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
@@ -148,11 +151,11 @@ def rfai_claim_back_request_consumer_handler(event, context):
         return util.generate_lambda_response(500, str(e))
 
 
-def rfai_add_foundation_member_consumer_handler(event, context):
+def add_foundation_member_consumer_handler(event, context):
     try:
         logger.info(f"Got Add Foundation Member Event {event}")
-        # create_request_event_consumer = get_create_request_event_consumer(event)
-        # create_request_event_consumer.on_event(event)
+        RFAIAddFoundationMemberEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
