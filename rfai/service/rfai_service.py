@@ -6,7 +6,7 @@ from rfai.dao.request_data_access_object import RequestDAO
 from rfai.dao.solution_data_access_object import SolutionDAO
 from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
-from rfai.rfai_status import RFAIStatusCodes, RFAIStatus
+from rfai.rfai_status import RFAIStatusCodes
 
 obj_utils = Utils()
 obj_blockchain_utils = BlockChainUtil(provider_type="HTTP_PROVIDER", provider=NETWORK["http_provider"])
