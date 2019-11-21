@@ -13,9 +13,6 @@ class OpenRequestStatus(Enum):
     EXPIRED = "OPEN/EXPIRED"
 
 
-class RFAIStatus(Enum):
-    OPEN = OpenRequestStatus
-    APPROVED = ApprovedRequestStatus
 
 
 class RFAIStatusCodes(Enum):

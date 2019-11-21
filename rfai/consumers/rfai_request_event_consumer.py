@@ -65,8 +65,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
 
     def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
-        [found, requestId, requester, totalFund, documentURI, expiration, endSubmission, endEvaluation, status,
-         stakeMembers, submitters] = self._get_rfai_service_request_by_id(request_id)
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
 
         title = rfai_metadata['title']
@@ -78,8 +78,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         request_actor = ''
         created_at = rfai_metadata['created']
 
-        self._rfai_request_repository.create_request(request_id, requester, totalFund, metadata_hash, expiration,
-                                                     endSubmission, endEvaluation, status, title, requestor_name,
+        self._rfai_request_repository.create_request(request_id, requester, total_fund, metadata_hash, expiration,
+                                                     end_submission, end_evaluation, status, title, requestor_name,
                                                      description, git_hub_link, training_data_set_uri,
                                                      acceptance_criteria, request_actor, created_at)
 
@@ -98,7 +98,6 @@ class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
         expiration = event_data['expiration']
         requester = event_data['requester']
         request_id = event_data['requestId']
-
         filter_params = {"expiration": expiration}
         self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
 
@@ -116,14 +115,13 @@ class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
 
         request_id = event_data['requestId']
         approver = event_data['approver']
-        endSubmission = event_data['endSubmission']
-        endEvaluation = event_data['endEvaluation']
+        end_submission = event_data['endSubmission']
+        end_evaluation = event_data['endEvaluation']
         expiration = event_data['expiration']
 
         filter_params = {"status": RFAIStatusCodes.APPROVED.value, "request_actor": approver,
-                         "end_submission": endSubmission, "end_evaluation": endEvaluation, "expiration": expiration}
+                         "end_submission": end_submission, "end_evaluation": end_evaluation, "expiration": expiration}
         self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
-
         # from where we will get claim back amount
 
 

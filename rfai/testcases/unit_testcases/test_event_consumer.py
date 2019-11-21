@@ -73,10 +73,10 @@ class TestOrganizationEventConsumer(unittest.TestCase):
                                '0x9c302750c50307D3Ad88eaA9a6506874a15cE4Cb'],
                               ['0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d']]
 
-        RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        # RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def extend_request_event_Consumer(self):
-        events = {"data": {
+        event = {"data": {
             "row_id": 23,
             "block_no": 6812889,
             "event": "ExtendRequest",
@@ -91,6 +91,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
         }, "name": "ExtendRequest"}
 
         RFAIExtendRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+
 
     def test_approve_request_event_consumer(self):
         event = {"data": {
@@ -124,8 +125,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
                 "row_created": "2019-11-18 14:53:03"
             }
         }
-        RFAIAddSolutionRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
-            event)
+        RFAIAddSolutionRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def test_reject_request_event_consumer(self):
         event = {
