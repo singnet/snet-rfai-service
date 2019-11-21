@@ -42,7 +42,9 @@ def rfai_summary_handler(event, context):
             data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_RFAI_SUMMARY_EVENT)
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
-        response_data = rfai.get_rfai_summary()
+        query_string_parameters = event["queryStringParameters"]
+        response_data = rfai.get_rfai_summary(requester=query_string_parameters["requester"],
+                                              my_request=query_string_parameters.get("my_request", False))
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(

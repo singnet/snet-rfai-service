@@ -37,7 +37,8 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request WHERE end_submission >= %s" + sub_query,
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = 1 AND "
+            "end_submission >= %s" + sub_query,
             [current_block_no] + sub_query_values)
         return query_response
 
@@ -49,7 +50,7 @@ class RequestDAO:
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
             "acceptance_criteria, request_actor, created_at FROM service_request "
-            "WHERE end_submission < %s AND end_evaluation >= %s" + sub_query,
+            "WHERE status = 1 AND end_submission < %s AND end_evaluation >= %s" + sub_query,
             [current_block_no, current_block_no] + sub_query_values)
         return query_response
 
@@ -60,7 +61,8 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE end_evaluation < %s AND"
+            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE status = 1 AND "
+            "end_evaluation < %s AND"
             " expiration >= %s" + sub_query, [current_block_no, current_block_no] + sub_query_values)
         return query_response
 
@@ -71,19 +73,20 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE expiration < %s" + sub_query,
+            "acceptance_criteria, request_actor, created_at FROM service_request  WHERE status = 1 AND expiration < %s" + sub_query,
             [current_block_no] + sub_query_values)
         return query_response
 
-    def get_open_active_request(self, current_block_no, filter_parameter):
+    def get_open_active_request(self, current_block_no, requester, filter_parameter):
         sub_query, sub_query_values = generate_sub_query_for_filter_params(filter_parameter=filter_parameter)
         if sub_query != "":
             sub_query = " AND " + sub_query
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = 0 and expiration >= %s"
-            + sub_query, [current_block_no] + sub_query_values)
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE (requester in "
+            "(SELECT member_address FROM foundation_member) or requester = %s) AND status = 0 and expiration >= %s"
+            + sub_query, [requester, current_block_no] + sub_query_values)
         return query_response
 
     def get_open_expired_request(self, current_block_no, filter_parameter):
@@ -103,8 +106,8 @@ class RequestDAO:
 
         query_response = self.repo.execute(
             "INSERT INTO service_request (request_id, requester, fund_total, documentURI,  expiration, end_submission, "
-            "end_evaluation, status, request_title, requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria , "
-            " request_actor, created_at, row_created, row_updated) "
+            "end_evaluation, status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
+            "acceptance_criteria,  request_actor, created_at, row_created, row_updated) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)",
             [request_id, requester, fund_total, document_uri, expiration, end_submission, end_evaluation, status,
              request_title, requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria,

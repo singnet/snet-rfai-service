@@ -24,3 +24,8 @@ VALUES(1, '0xd03ea8624C8C5987235048901fB614fDcA89b117', 2, str_to_date('2019-11-
 
 INSERT INTO foundation_member (member_address, role, status, request_actor, created_at, row_created, row_updated)
 VALUES('0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 0, 1, '', str_to_date('2019-11-04 17:34:28', '%Y-%m-%d %H:%i:%s'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO service_request
+(request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, status, request_title,
+requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria, request_actor, created_at, row_created, row_updated)
+VALUES(2, '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 100, '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 7348080, 123457, 7248080, 1, 'Face Recognition', 'Dummy', 'Detecting faces from various perspective.', 'http://www.dummy.io/repo', '0xg15BB7b899250a67C02fcEDA18706B79aC997884', 'This is dummy . All are invited.', 'Dummy Actor', str_to_date('2019-11-04 17:34:28', '%Y-%m-%d %H:%i:%s'), CURRENT_TIMESTAMP, current_timestamp);

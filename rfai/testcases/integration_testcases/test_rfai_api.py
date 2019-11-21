@@ -11,7 +11,7 @@ class TestRFAIAPI(unittest.TestCase):
         pass
 
     @patch("common.utils.Utils.report_slack")
-    def test_get_request(self, mock_report_slack):
+    def test_get_request_for_pending_status(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
                                            "status": "pending"}}
@@ -29,6 +29,18 @@ class TestRFAIAPI(unittest.TestCase):
              'training_data_set_uri': '0xg15BB7b899250a67C02fcEDA18706B79aC997884',
              'acceptance_criteria': 'This is dummy . All are invited.', 'request_actor': 'Dummy Actor',
              'created_at': '2019-11-04 17:34:28', 'vote_count': 2, 'stake_count': 2, 'solution_count': 2}])
+
+    @patch("common.utils.Utils.report_slack")
+    def test_get_request_for_solution_vote_status(self, mock_report_slack):
+        event = {"resource": "/request", "httpMethod": "GET",
+                 "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
+                                           "status": "solution_vote"}}
+        response = request_handler(event=event, context=None)
+        print(response)
+        assert (response["statusCode"] == 200)
+        response_body = json.loads(response["body"])
+        assert (response_body["status"] == "success")
+        assert (response_body["data"] == [{"request_id": 2, "requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884", "fund_total": 100, "documentURI": "0xf15BB7b899250a67C02fcEDA18706B79aC997884", "expiration": 7348080, "end_submission": 123457, "end_evaluation": 7248080, "status": 1, "request_title": "Face Recognition", "requester_name": "Dummy", "description": "Detecting faces from various perspective.", "git_hub_link": "http://www.dummy.io/repo", "training_data_set_uri": "0xg15BB7b899250a67C02fcEDA18706B79aC997884", "acceptance_criteria": "This is dummy . All are invited.", "request_actor": "Dummy Actor", "created_at": "2019-11-04 17:34:28", "vote_count": 0, "stake_count": 0, "solution_count": 0}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_vote_for_given_request_id(self, mock_report_slack):
@@ -84,7 +96,10 @@ class TestRFAIAPI(unittest.TestCase):
 
     @patch("common.utils.Utils.report_slack")
     def test_get_rfai_summary(self, mock_report_slack):
-        event = {"resource": "/summary", "httpMethod": "GET"}
+        event = {"resource": "/summary",
+                 "httpMethod": "GET",
+                 "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
+                                           "status": "solution_vote"}}
         response = rfai_summary_handler(event=event, context=None)
         print(response)
         assert (response["statusCode"] == 200)
@@ -92,8 +107,8 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response_body["status"] == "success")
         assert (response_body["data"]["PENDING"] == 1)
         assert (response_body["data"]["ACTIVE"] == 0)
-        assert (response_body["data"]["SOLUTION_VOTE"] == 0)
-        assert (response_body["data"]["COMPLETED"] == 1)
+        assert (response_body["data"]["SOLUTION_VOTE"] == 1)
+        assert (response_body["data"]["COMPLETED"] == 0)
         assert (response_body["data"]["REJECTED"] == 0)
         assert (response_body["data"]["CLOSED"] == 0)
 
