@@ -22,11 +22,11 @@ class RFAIService:
 
     def _format_filter_params(self, query_parameters):
         filter_params = {}
-        if "status" in query_parameters.keys():
-            filter_params["status"] = query_parameters["status"]
-        elif "requester" in query_parameters.keys():
+        # if "status" in query_parameters.keys():
+        #     filter_params["status"] = RFAIStatusCodes.query_parameters["status"].value
+        if "requester" in query_parameters.keys():
             filter_params["requester"] = query_parameters["requester"]
-        elif "request_id" in query_parameters.keys():
+        if "request_id" in query_parameters.keys():
             filter_params["request_id"] = query_parameters["request_id"]
         return filter_params
 
@@ -52,6 +52,8 @@ class RFAIService:
 
             elif status_code == RFAIStatusCodes.PENDING.value:
                 requests_data = self.request_dao.get_open_active_request(current_block_no=current_block_no,
+                                                                         requester=query_string_parameters[
+                                                                             "requester"],
                                                                          filter_parameter=filter_parameter)
 
             elif status_code == RFAIStatusCodes.INCOMPLETE.value:
@@ -75,8 +77,8 @@ class RFAIService:
             record["created_at"] = str(record["created_at"])
         return requests_data
 
-    def get_rfai_summary(self):
-        request_summary = self.generate_rfai_summary()
+    def get_rfai_summary(self, requester, my_request):
+        request_summary = self.generate_rfai_summary(requester=requester, my_request=my_request)
         # request_summary_raw = self.request_dao.get_request_status_summary()
         # request_summary = {RFAIStatusCodes(0).name: {"count": 0}, RFAIStatusCodes(1).name: {"count": 0},
         #                    RFAIStatusCodes(2).name: {"count": 0}, RFAIStatusCodes(4).name: {"count": 0}}
@@ -140,11 +142,12 @@ class RFAIService:
     #             return RFAIStatus.APPROVED.value.EXPIRED.value
     #     raise Exception("Unable to compute RFAI request sub status")
 
-    def generate_rfai_summary(self):
+    def generate_rfai_summary(self, requester, my_request):
         filter_parameter = {}
         current_block_no = obj_blockchain_utils.get_current_block_no()
         rfai_summary = {
             "PENDING": len(self.request_dao.get_open_active_request(current_block_no=current_block_no,
+                                                                    requester=requester,
                                                                     filter_parameter=filter_parameter)),
             "INCOMPLETE": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
                                                                         filter_parameter=filter_parameter))
