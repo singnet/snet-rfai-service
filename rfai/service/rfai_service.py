@@ -20,7 +20,7 @@ class RFAIService:
         self.stake_dao = StakeDAO(repo=repo)
         self.foundation_member_dao = FoundationMemberDAO(repo=repo)
 
-    def format_filter_params(self, query_parameters):
+    def _format_filter_params(self, query_parameters):
         filter_params = {}
         if "status" in query_parameters.keys():
             filter_params["status"] = query_parameters["status"]
@@ -32,21 +32,21 @@ class RFAIService:
 
     def get_requests(self, query_string_parameters):
         status = query_string_parameters.get("status", None)
-        filter_parameter = self.format_filter_params(query_parameters=query_string_parameters)
+        filter_parameter = self._format_filter_params(query_parameters=query_string_parameters)
         if status is not None and status.upper() in RFAIStatusCodes.__members__:
             status_code = RFAIStatusCodes[status.upper()].value
             query_string_parameters["status_code"] = status_code
             current_block_no = obj_blockchain_utils.get_current_block_no()
 
-            if status_code == RFAIStatusCodes.APPROVED_ACTIVE.value:
+            if status_code == RFAIStatusCodes.ACTIVE.value:
                 requests_data = self.request_dao.get_approved_active_request(current_block_no=current_block_no,
                                                                              filter_parameter=filter_parameter)
 
-            elif status_code == RFAIStatusCodes.APPROVED_SOLUTION_VOTE.value:
+            elif status_code == RFAIStatusCodes.SOLUTION_VOTE.value:
                 requests_data = self.request_dao.get_approved_solution_vote_request(current_block_no=current_block_no,
                                                                                     filter_parameter=filter_parameter)
 
-            elif status_code == RFAIStatusCodes.APPROVED_COMPLETED.value:
+            elif status_code == RFAIStatusCodes.COMPLETED.value:
                 requests_data = self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
                                                                                 filter_parameter=filter_parameter)
 
@@ -54,7 +54,7 @@ class RFAIService:
                 requests_data = self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
                                                                               filter_parameter=filter_parameter)
 
-            elif status_code == RFAIStatusCodes.OPEN_ACTIVE.value:
+            elif status_code == RFAIStatusCodes.PENDING.value:
                 requests_data = self.request_dao.get_open_active_request(current_block_no=current_block_no,
                                                                          filter_parameter=filter_parameter)
 
