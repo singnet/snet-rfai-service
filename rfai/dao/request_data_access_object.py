@@ -62,7 +62,7 @@ class RequestDAO:
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
             "acceptance_criteria, request_actor, created_at FROM service_request  WHERE status = 1 AND "
-            "end_evaluation < %s AND"
+            "end_evaluation < %s AND request_id IN (SELECT request_id FROM rfai_vote) AND"
             " expiration >= %s" + sub_query, [current_block_no, current_block_no] + sub_query_values)
         return query_response
 
