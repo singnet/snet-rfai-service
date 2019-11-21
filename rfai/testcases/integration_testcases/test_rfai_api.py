@@ -14,7 +14,7 @@ class TestRFAIAPI(unittest.TestCase):
     def test_get_request(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
-                                           "status": "open_active"}}
+                                           "status": "pending"}}
         response = request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
@@ -88,12 +88,13 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        assert (response_body["data"]["OPEN"] == 1)
+        assert (response_body["data"]["PENDING"] == 1)
         assert (response_body["data"]["ACTIVE"] == 0)
         assert (response_body["data"]["SOLUTION_VOTE"] == 0)
         assert (response_body["data"]["COMPLETED"] == 0)
         assert (response_body["data"]["REJECTED"] == 0)
         assert (response_body["data"]["CLOSED"] == 0)
+
 
 if __name__ == '__main__':
     unittest.main()
