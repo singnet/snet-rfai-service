@@ -33,7 +33,7 @@ class FoundationMemberDAO:
 
     def create_or_update_foundation_member(self, member_address, role, status, request_actor, created_at):
         query_response = self.repo.execute(
-            "INSERT INTO rfai_solution (member_address, role, status, request_actor, created_at, row_created, "
+            "INSERT INTO foundation_member (member_address, role, status, request_actor, created_at, row_created, "
             "row_updated) VALUES( %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE role = %a, status = %s, "
             "request_actor = %s, created_at = %s",
             [member_address, role, status, request_actor, created_at, dt.utcnow(), dt.utcnow(), role, status,
