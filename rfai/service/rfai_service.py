@@ -50,15 +50,11 @@ class RFAIService:
                 requests_data = self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
                                                                                 filter_parameter=filter_parameter)
 
-            elif status_code == RFAIStatusCodes.APPROVED_EXPIRED.value:
-                requests_data = self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
-                                                                              filter_parameter=filter_parameter)
-
             elif status_code == RFAIStatusCodes.PENDING.value:
                 requests_data = self.request_dao.get_open_active_request(current_block_no=current_block_no,
                                                                          filter_parameter=filter_parameter)
 
-            elif status_code == RFAIStatusCodes.OPEN_EXPIRED.value:
+            elif status_code == RFAIStatusCodes.INCOMPLETE.value:
                 requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
                                                                           filter_parameter=filter_parameter)
 
