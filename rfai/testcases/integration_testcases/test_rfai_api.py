@@ -14,7 +14,7 @@ class TestRFAIAPI(unittest.TestCase):
     def test_get_request(self, mock_report_slack):
         event = {"resource": "/request", "httpMethod": "GET",
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
-                                           "status": "open_active"}}
+                                           "status": "pending"}}
         response = request_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
