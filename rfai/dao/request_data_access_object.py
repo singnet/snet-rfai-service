@@ -82,8 +82,8 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request WHERE expiration <= %s" + sub_query,
-            [current_block_no] + sub_query_values)
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = 0 and expiration >= %s"
+            + sub_query, [current_block_no] + sub_query_values)
         return query_response
 
     def get_open_expired_request(self, current_block_no, filter_parameter):

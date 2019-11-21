@@ -16,12 +16,13 @@ class TestRFAIAPI(unittest.TestCase):
                  "queryStringParameters": {"requester": "0xf15BB7b899250a67C02fcEDA18706B79aC997884",
                                            "status": "pending"}}
         response = request_handler(event=event, context=None)
+        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
             {'request_id': 1, 'requester': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'fund_total': 100,
-             'documentURI': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'expiration': 123456,
+             'documentURI': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'expiration': 7348080,
              'end_submission': 123457, 'end_evaluation': 123458, 'status': 0, 'request_title': 'Face Recognition',
              'requester_name': 'Dummy', 'description': 'Detecting faces from various perspective.',
              'git_hub_link': 'http://www.dummy.io/repo',
@@ -85,13 +86,14 @@ class TestRFAIAPI(unittest.TestCase):
     def test_get_rfai_summary(self, mock_report_slack):
         event = {"resource": "/summary", "httpMethod": "GET"}
         response = rfai_summary_handler(event=event, context=None)
+        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
         assert (response_body["data"]["PENDING"] == 1)
         assert (response_body["data"]["ACTIVE"] == 0)
         assert (response_body["data"]["SOLUTION_VOTE"] == 0)
-        assert (response_body["data"]["COMPLETED"] == 0)
+        assert (response_body["data"]["COMPLETED"] == 1)
         assert (response_body["data"]["REJECTED"] == 0)
         assert (response_body["data"]["CLOSED"] == 0)
 
