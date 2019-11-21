@@ -6,6 +6,7 @@ from rfai.config import NETWORK
 from rfai.consumers.event_consumer import EventConsumer
 from rfai.dao.foundation_member_data_access_object import FoundationMemberDAO
 from rfai.dao.request_data_access_object import RequestDAO
+from rfai.dao.solution_data_access_object import SolutionDAO
 import datetime
 from common.repository import Repository
 from rfai.dao.stake_data_access_object import StakeDAO
@@ -26,7 +27,7 @@ class RFAIEventConsumer(EventConsumer):
 
     def _get_rfai_contract(self):
         base_contract_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..','..','node_modules', 'singularitynet-rfai-contracts'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'node_modules', 'singularitynet-rfai-contracts'))
         rfai_contract = self._blockchain_util.get_contract_instance(base_contract_path, "RFAI", self._net_id)
 
         return rfai_contract
@@ -64,8 +65,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
 
     def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
-        [found, requestId, requester, totalFund, documentURI, expiration, endSubmission, endEvaluation, status,
-         stakeMembers, submitters] = self._get_rfai_service_request_by_id(request_id)
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
 
         title = rfai_metadata['title']
@@ -77,8 +78,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         request_actor = ''
         created_at = rfai_metadata['created']
 
-        self._rfai_request_repository.create_request(request_id, requester, totalFund, metadata_hash, expiration,
-                                                     endSubmission, endEvaluation, status, title, requestor_name,
+        self._rfai_request_repository.create_request(request_id, requester, total_fund, metadata_hash, expiration,
+                                                     end_submission, end_evaluation, status, title, requestor_name,
                                                      description, git_hub_link, training_data_set_uri,
                                                      acceptance_criteria, request_actor, created_at)
 
@@ -87,8 +88,8 @@ class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
 
-    def __init__(self, ws_provider, ipfs_url, ipfs_port):
-        super().__init__(ws_provider, ipfs_url, ipfs_port)
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
         # need to change this whenever we clean up it should nto be tied with db column name
@@ -97,7 +98,6 @@ class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
         expiration = event_data['expiration']
         requester = event_data['requester']
         request_id = event_data['requestId']
-
         filter_params = {"expiration": expiration}
         self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
 
@@ -115,14 +115,13 @@ class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
 
         request_id = event_data['requestId']
         approver = event_data['approver']
-        endSubmission = event_data['endSubmission']
-        endEvaluation = event_data['endEvaluation']
+        end_submission = event_data['endSubmission']
+        end_evaluation = event_data['endEvaluation']
         expiration = event_data['expiration']
 
         filter_params = {"status": RFAIStatusCodes.APPROVED.value, "request_actor": approver,
-                         "end_submission": endSubmission, "end_evaluation": endEvaluation, "expiration": expiration}
+                         "end_submission": end_submission, "end_evaluation": end_evaluation, "expiration": expiration}
         self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
-
         # from where we will get claim back amount
 
 
@@ -161,17 +160,18 @@ class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
 
     def on_event(self, event):
         event_data = self._get_event_data(event)
-        member = event_data['member']
+        member_address = event_data['member']
         actor = event_data['actor']
         role = event_data['role']
-        status = event_data['status']
-        # check for last attribute caretaed_at rigtn ow set as current time . aslo this should be upsert query
-        self._rfai_foundation_member_repository.create_or_update_foundation_member(member, role, status, actor, datetime.datetime.utcnow())
+        status = int(event_data['status'] == True)
+        # check for last attribute created_at, right now set as current time .
+        self._rfai_foundation_member_repository.create_or_update_foundation_member(member_address, role, status, actor,
+                                                                                   datetime.datetime.utcnow())
 
 
 class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _rfai_solution_repository = SolutionDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -180,7 +180,12 @@ class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         result = self._get_rfai_service_request_by_id(request_id)
-        print(result)
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        self._rfai_solution_repository.create_or_update_solution(request_id=request_id,
+                                                                 submitter=event_data["submitter"],
+                                                                 doc_uri=event_data["solutionDocURI"], claim_amount=0,
+                                                                 created_at=datetime.datetime.utcnow())
 
 
 class RFAIRejectRequestEventConsumer(RFAIEventConsumer):

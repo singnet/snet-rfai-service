@@ -1,11 +1,29 @@
 import unittest
-from unittest.mock import patch, Mock
 
 from common.repository import Repository
-from rfai.config import NETWORK_ID, NETWORK, IPFS_URL
-from rfai.consumers.rfai_request_event_consumer import RFAICreateRequestEventConsumer, RFAIFundRequestEventConsumer, \
-    RFAIApproveRequestEventConsumer, RFAIExtendRequestEventConsumer
+from rfai.config import NETWORK, IPFS_URL
+from rfai.consumers.rfai_request_event_consumer import RFAIExtendRequestEventConsumer, \
+    RFAIAddSolutionRequestEventConsumer, RFAIRejectRequestEventConsumer, RFAIAddFoundationMemberEventConsumer, \
+    RFAIApproveRequestEventConsumer, RFAIFundRequestEventConsumer, RFAICreateRequestEventConsumer
 from rfai.dao.request_data_access_object import RequestDAO
+
+
+def add_foundation_member_event_consumer():
+    event = {"data": {
+        "row_id": 1,
+        "block_no": 6773900,
+        "event": "AddFoundationMember",
+        "json_str": "{'member': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'actor': '0x2e9c6C4145107cD21fCDc7319E4b24a8FF636c6B', 'role': 1, 'status': True}",
+        "processed": 0,
+        "transactionHash": "b'\\xa0\\xa0n\\xfe$\\x7f\\xbcL\\x81\\x91\\x19&\\xa2L\\r\\t\\x05o\\xc0\\x96\\x13\\x12\\rI]\\xff<@\\xa5W{\\xe3'",
+        "logIndex": "1",
+        "error_code": 0,
+        "error_msg": "",
+        "row_updated": "2019-11-18 14:52:52",
+        "row_created": "2019-11-18 14:52:52"
+    }, "name": "AddFoundationMember"}
+
+    RFAIAddFoundationMemberEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
 
 class TestOrganizationEventConsumer(unittest.TestCase):
@@ -31,8 +49,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
         }, "name": "CreateRequest"}
 
         rfai_metadat = '{"title": "Autonomous AI Infra", "description": "Autonomous AI Infra for inference", "documentURI": "https://github.com/ksridharbabuus/A1", "training-dataset": "https://github.com/ksridharbabuus/A1", "acceptance-criteria": "Working solution in marketplace in given time", "created": "2019-11-14"}'
-        # RFAICreateRequestEventConsumer().on_event(event)
-        # RFAICreateRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        RFAICreateRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def test_rfai_fund_request_event_consumer(self):
         event = {"data": {
@@ -59,7 +76,7 @@ class TestOrganizationEventConsumer(unittest.TestCase):
         # RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
     def extend_request_event_Consumer(self):
-        events = {"data":{
+        event = {"data": {
             "row_id": 23,
             "block_no": 6812889,
             "event": "ExtendRequest",
@@ -71,10 +88,9 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "error_msg": "",
             "row_updated": "2019-11-20 13:16:25",
             "row_created": "2019-11-20 13:16:25"
-        },"name":"ExtendRequest"}
+        }, "name": "ExtendRequest"}
 
         RFAIExtendRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
-
 
 
     def test_approve_request_event_consumer(self):
@@ -91,56 +107,43 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "row_updated": "2019-11-18 14:52:56",
             "row_created": "2019-11-18 14:52:56"
         }, "name": "ApproveRequest"}
-        # RFAIApproveRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+        RFAIApproveRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
-    def add_foundation_memeber_event_consumer(self):
-        event = {"data": {
-            "row_id": 1,
-            "block_no": 6773900,
-            "event": "AddFoundationMember",
-            "json_str": "{'member': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc', 'actor': '0x2e9c6C4145107cD21fCDc7319E4b24a8FF636c6B', 'role': 1, 'status': True}",
-            "processed": 0,
-            "transactionHash": "b'\\xa0\\xa0n\\xfe$\\x7f\\xbcL\\x81\\x91\\x19&\\xa2L\\r\\t\\x05o\\xc0\\x96\\x13\\x12\\rI]\\xff<@\\xa5W{\\xe3'",
-            "logIndex": "1",
-            "error_code": 0,
-            "error_msg": "",
-            "row_updated": "2019-11-18 14:52:52",
-            "row_created": "2019-11-18 14:52:52"
-        }, "name": "AddFoundationMember"}
-
-        RFAIAddFoundationMember(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
-
-    def add_solution_request_event_consumer(self):
-        event = {"data": {
-            "row_id": 19,
-            "block_no": 6774405,
-            "event": "AddSolutionRequest",
-            "json_str": "{'requestId': 0, 'submitter': '0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b', 'solutionDocURI': b'https:\/\/github.com\/tna3'}",
-            "processed": 0,
-            "transactionHash": "b'Z\\xb2y\\x17\\xc8\\tx \\x161\\xfe\\xfdL\\xc6Z\\x9a\\x19\\x0e\\xa7\\x08\\xb1W\\x1cb!0c\\xc4\\xa8\\xd8\\x9d6'",
-            "logIndex": "55",
-            "error_code": 0,
-            "error_msg": "",
-            "row_updated": "2019-11-18 14:53:03",
-            "row_created": "2019-11-18 14:53:03"
-        }, "name": "AddSolutionRequest"}
-
-    def reject_request_event_consumer(self):
+    def test_add_solution_request_event_consumer(self):
         event = {
-            "row_id": 22,
-            "block_no": 6773937,
-            "event": "RejectRequest",
-            "json_str": "{'requestId': 1, 'actor': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc'}",
-            "processed": 0,
-            "transactionHash": "b'l\\xd6\\x11h\\x8f\\xaa\\xb7\\x9b\\xb1\\x82\\x1fC\\xaa\\xb4\\xa0\\xc3\\xfcN\\xb7\\xe6\\xb9\\xab\\xec~\\x9c+2:\\x07\\x19\\xf5('",
-            "logIndex": "2",
-            "error_code": 0,
-            "error_msg": "",
-            "row_updated": "2019-11-18 14:53:05",
-            "row_created": "2019-11-18 14:53:05"
+            "data": {
+                "row_id": 19,
+                "block_no": 6774405,
+                "event": "AddSolutionRequest",
+                "json_str": "{'requestId': 1, 'submitter': '0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b', 'solutionDocURI': b'https:\/\/github.com\/tna3'}",
+                "processed": 0,
+                "transactionHash": "b'Z\\xb2y\\x17\\xc8\\tx \\x161\\xfe\\xfdL\\xc6Z\\x9a\\x19\\x0e\\xa7\\x08\\xb1W\\x1cb!0c\\xc4\\xa8\\xd8\\x9d6'",
+                "logIndex": "55",
+                "error_code": 0,
+                "error_msg": "",
+                "row_updated": "2019-11-18 14:53:03",
+                "row_created": "2019-11-18 14:53:03"
+            }
         }
+        RFAIAddSolutionRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
-        pass
+    def test_reject_request_event_consumer(self):
+        event = {
+            "data": {
+                "row_id": 22,
+                "block_no": 6773937,
+                "event": "RejectRequest",
+                "json_str": "{'requestId': 1, 'actor': '0x3a1fe7E30D9e140f72870E6D74BF8d0c690A4dBc'}",
+                "processed": 0,
+                "transactionHash": "b'l\\xd6\\x11h\\x8f\\xaa\\xb7\\x9b\\xb1\\x82\\x1fC\\xaa\\xb4\\xa0\\xc3\\xfcN\\xb7\\xe6\\xb9\\xab\\xec~\\x9c+2:\\x07\\x19\\xf5('",
+                "logIndex": "2",
+                "error_code": 0,
+                "error_msg": "",
+                "row_updated": "2019-11-18 14:53:05",
+                "row_created": "2019-11-18 14:53:05"
+            }
+        }
+        RFAIRejectRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
 
 if __name__ == '__main__':
