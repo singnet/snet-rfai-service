@@ -148,23 +148,23 @@ class RFAIService:
         filter_parameter = {}
         current_block_no = obj_blockchain_utils.get_current_block_no()
         rfai_summary = {
-            "OPEN": len(
-                self.request_dao.get_request_data_for_given_requester_and_status(filter_parameter={"status": "open"})),
-            "OPEN_ACTIVE": len(self.request_dao.get_open_active_request(current_block_no=current_block_no,
+            # "OPEN": len(
+            #     self.request_dao.get_request_data_for_given_requester_and_status(filter_parameter={"status": "open"})),
+            "OPEN": len(self.request_dao.get_open_active_request(current_block_no=current_block_no,
                                                                         filter_parameter=filter_parameter)),
-            "OPEN_EXPIRED": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
-                                                                          filter_parameter=filter_parameter)),
-            "APPROVED": len(self.request_dao.get_request_data_for_given_requester_and_status(
-                filter_parameter={"status": "approved"})),
-            "APPROVED_ACTIVE": len(self.request_dao.get_approved_active_request(current_block_no=current_block_no,
+            # "OPEN_EXPIRED": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
+            #                                                               filter_parameter=filter_parameter)),
+            # "APPROVED": len(self.request_dao.get_request_data_for_given_requester_and_status(
+            #     filter_parameter={"status": "approved"})),
+            "ACTIVE": len(self.request_dao.get_approved_active_request(current_block_no=current_block_no,
                                                                                 filter_parameter=filter_parameter)),
-            "APPROVED_SOLUTION_VOTE": len(self.request_dao.get_approved_solution_vote_request(
+            "SOLUTION_VOTE": len(self.request_dao.get_approved_solution_vote_request(
                 current_block_no=current_block_no,
                 filter_parameter=filter_parameter)),
-            "APPROVED_COMPLETED": len(self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
+            "COMPLETED": len(self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
                                                                                       filter_parameter=filter_parameter)),
-            "APPROVED_EXPIRED": len(self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
-                                                                                  filter_parameter=filter_parameter)),
+            # "APPROVED_EXPIRED": len(self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
+            #                                                                       filter_parameter=filter_parameter)),
             "REJECTED": len(self.request_dao.get_request_data_for_given_requester_and_status(
                 filter_parameter={"status": RFAIStatusCodes.REJECTED.value})),
             "CLOSED": len(self.request_dao.get_request_data_for_given_requester_and_status(
