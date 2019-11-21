@@ -88,12 +88,13 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        assert (response_body["data"]["OPEN"] == 1)
+        assert (response_body["data"]["PENDING"] == 1)
         assert (response_body["data"]["ACTIVE"] == 0)
         assert (response_body["data"]["SOLUTION_VOTE"] == 0)
         assert (response_body["data"]["COMPLETED"] == 0)
         assert (response_body["data"]["REJECTED"] == 0)
         assert (response_body["data"]["CLOSED"] == 0)
+
 
 if __name__ == '__main__':
     unittest.main()
