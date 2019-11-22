@@ -30,9 +30,10 @@ class RFAIService:
 
     def get_requests(self, query_string_parameters):
         status = query_string_parameters.get("status", None)
+        status = status.upper()
         filter_parameter = self._format_filter_params(query_parameters=query_string_parameters)
-        if status is not None and status.upper() in RFAIStatusCodes.__members__:
-            status_code = RFAIStatusCodes[status.upper()].value
+        if status is not None and status in RFAIStatusCodes.__members__:
+            status_code = RFAIStatusCodes[status].value
             query_string_parameters["status_code"] = status_code
             current_block_no = obj_blockchain_utils.get_current_block_no()
 
@@ -56,9 +57,11 @@ class RFAIService:
 
             elif status_code == RFAIStatusCodes.INCOMPLETE.value:
                 requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
-                                                                          filter_parameter=filter_parameter)
-
+                                                                          filter_parameter=filter_parameter)+\
+                                self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
+                                                                              filter_parameter=filter_parameter)
             else:
+                filter_parameter.update({"status": getattr(RFAIStatusCodes, status).value})
                 requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
                     filter_parameter=filter_parameter)
         elif status is None:
