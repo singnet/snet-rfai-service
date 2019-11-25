@@ -151,7 +151,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         # from where we will get claim back amount
 
         self._stake_dao_repository.create_stake(request_id, staker, amount, 0,
-                                                Web3.toHex(event["transactionHash"].encode("utf-8")), created_at)
+                                                Web3.toHex(event["data"]["transactionHash"].encode("utf-8")), created_at)
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
