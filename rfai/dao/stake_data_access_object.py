@@ -16,13 +16,13 @@ class StakeDAO:
             "SELECT COUNT(*) as stake_count FROM rfai_stake WHERE request_id = %s", int(request_id))
         return query_response[0]
 
-    def create_stake(self, request_id, stake_member, stake_amount, claim_back_amount, created_at):
+    def create_stake(self, request_id, stake_member, stake_amount, claim_back_amount, transaction_hash, created_at):
 
         query_response = self.repo.execute(
-            "INSERT INTO rfai_stake (request_id, stake_member, stake_amount, claim_back_amount, created_at, "
-            "row_created, row_updated) "
-            "VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-            [request_id, stake_member, stake_amount, claim_back_amount, created_at])
+            "INSERT INTO rfai_stake (request_id, stake_member, stake_amount, claim_back_amount, transaction_hash, "
+            "created_at, row_created, row_updated) "
+            "VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+            [request_id, stake_member, stake_amount, claim_back_amount, transaction_hash, created_at])
 
         return query_response[0]
 

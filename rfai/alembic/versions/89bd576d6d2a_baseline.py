@@ -57,10 +57,12 @@ def upgrade():
             `stake_member`	varchar(50) NOT NULL,
             `stake_amount`	int(20) NOT NULL,
             `claim_back_amount`	int(20) DEFAULT NULL,
+            `transaction_hash`	varchar(100) NOT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
+            UNIQUE KEY `uq_txn_hash` (`transaction_hash`),
             CONSTRAINT `RFAIStakeRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE);
         """)
     conn.execute("""CREATE TABLE `rfai_solution` (
@@ -78,16 +80,17 @@ def upgrade():
     conn.execute("""CREATE TABLE `rfai_vote` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
             `request_id`	int(11) NOT NULL,
-            `voter_solution`	varchar(50) NOT NULL,
+            `voter`	varchar(100) NOT NULL,
             `rfai_solution_id`	int(11),
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_vote` (`request_id`, `rfai_solution_id`),
+            UNIQUE KEY `uq_vote` (`voter`, `rfai_solution_id`),
             CONSTRAINT `RFAIVoteRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE,
             CONSTRAINT `RFAIVoteSolutionIdFK` FOREIGN KEY (`rfai_solution_id`) REFERENCES `rfai_solution` (`row_id`) ON DELETE CASCADE);
         """)
+
 
 def downgrade():
     conn = op.get_bind()
@@ -95,3 +98,4 @@ def downgrade():
     conn.execute("""DROP TABLE rfai_solution;""")
     conn.execute("""DROP TABLE rfai_vote;""")
     conn.execute("""DROP TABLE service_request;""")
+    conn.execute("""DROP TABLE foundationmembers;""")

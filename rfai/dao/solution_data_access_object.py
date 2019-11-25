@@ -44,3 +44,9 @@ class SolutionDAO:
             [request_id, submitter, doc_uri, claim_amount, created_at, dt.utcnow(), dt.utcnow(), submitter, doc_uri,
              claim_amount, dt.utcnow()])
         return query_response[0]
+
+    def get_solution_id_for_given_submitter(self, submitter, request_id):
+        query_response = self.repo.execute(
+            "SELECT row_id as rfai_solution_id, submitter, doc_uri, claim_amount, created_at FROM rfai_solution WHERE "
+            "submitter = %s AND request_id = %s", [submitter, int(request_id)])
+        return query_response[0]
