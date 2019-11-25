@@ -4,7 +4,8 @@ from common.utils import Utils
 from rfai.config import SLACK_HOOK, NETWORK_ID, NETWORK, IPFS_URL
 from rfai.consumers.rfai_request_event_consumer import RFAIApproveRequestEventConsumer, RFAICreateRequestEventConsumer, \
     RFAIRejectRequestEventConsumer, RFAIAddSolutionRequestEventConsumer, RFAIAddFoundationMemberEventConsumer, \
-    RFAIFundRequestEventConsumer, RFAIExtendRequestEventConsumer
+    RFAIFundRequestEventConsumer, RFAIExtendRequestEventConsumer, RFAIVoteRequestEventConsumer, \
+    RFAICloseRequestEventConsumer, RFAIClaimBackRequestEventConsumer, RFAIClaimRequestEventConsumer
 
 logger = get_logger(__name__)
 util = Utils()
@@ -20,7 +21,7 @@ def create_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -34,7 +35,7 @@ def extend_request_consumer_handler(event, context):
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -70,7 +71,8 @@ def add_solution_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Add Solution Request Event {event}")
 
-        RFAIAddSolutionRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        RFAIAddSolutionRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'],
+                                            IPFS_URL['port']).on_event(
             event)
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -84,13 +86,13 @@ def vote_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Vote Request Event {event}")
 
-        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
-        #     event)
+        RFAIVoteRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -98,8 +100,8 @@ def vote_request_consumer_handler(event, context):
 def claim_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Claim Request Event {event}")
-        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
-        #     event)
+        RFAIClaimRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -112,8 +114,8 @@ def claim_request_consumer_handler(event, context):
 def close_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Close Request Event {event}")
-        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
-        #     event)
+        RFAICloseRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+            event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
@@ -129,11 +131,10 @@ def reject_request_consumer_handler(event, context):
         RFAIRejectRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
             event)
 
-
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
 
@@ -141,8 +142,8 @@ def reject_request_consumer_handler(event, context):
 def claim_back_request_consumer_handler(event, context):
     try:
         logger.info(f"Got Claim Back Request Event {event}")
-        # RFAIApproveRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
-        #     event)
+        RFAIClaimBackRequestEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']). \
+            on_event(event)
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
@@ -154,12 +155,13 @@ def claim_back_request_consumer_handler(event, context):
 def add_foundation_member_consumer_handler(event, context):
     try:
         logger.info(f"Got Add Foundation Member Event {event}")
-        RFAIAddFoundationMemberEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(
+        RFAIAddFoundationMemberEventConsumer(NETWORK_ID, NETWORK['ws_provider'], IPFS_URL['url'],
+                                             IPFS_URL['port']).on_event(
             event)
 
         return util.generate_lambda_response(StatusCode.OK, "Event processed")
     except Exception as e:
         logger.exception(f"error  {str(e)} while processing event {event}")
-        util.report_slack( f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
+        util.report_slack(f"got error : {str(e)} \n for event : {event}", SLACK_HOOK)
 
         return util.generate_lambda_response(500, str(e))
