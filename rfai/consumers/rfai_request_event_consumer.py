@@ -10,6 +10,7 @@ from rfai.dao.solution_data_access_object import SolutionDAO
 import datetime
 from common.repository import Repository
 from rfai.dao.stake_data_access_object import StakeDAO
+from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatusCodes
 
 logger = get_logger(__name__)
@@ -206,3 +207,76 @@ class RFAIRejectRequestEventConsumer(RFAIEventConsumer):
     def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
         self._rfai_request_repository.update_request_for_given_request_id(request_id=request_id, update_parameters={
             "status": status, "request_actor": request_actor})
+
+
+class RFAIVoteRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _rfai_vote_repository = VoteDAO(_connection)
+    _rfai_solution_repository = SolutionDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+        request_id = event_data['requestId']
+        solution_data = self._rfai_solution_repository.get_solution_id_for_given_submitter(request_id=request_id,
+                                                                                           submitter=event_data[
+                                                                                               "submitter"])
+        self._create_or_update_vote(request_id=request_id, voter=event_data["voter"],
+                                    rfai_solution_id=solution_data["row_id"])
+
+    def _create_or_update_vote(self, request_id, voter, rfai_solution_id):
+        self._rfai_vote_repository.create_or_update_vote(request_id=request_id, voter=voter,
+                                                         rfai_solution_id=rfai_solution_id,
+                                                         created_at=datetime.datetime.utcnow())
+
+
+class RFAICloseRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _rfai_request_repository = RequestDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+        request_id = event_data['requestId']
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        self._update_rfai_request_status_and_actor(request_id=request_id, status=RFAIStatusCodes.REJECTED.value,
+                                                   request_actor=event_data["actor"])
+
+    def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
+        self._rfai_request_repository.update_request_for_given_request_id(request_id=request_id, update_parameters={
+            "status": status, "request_actor": request_actor})
+
+
+class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _rfai_request_repository = RequestDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+        request_id = event_data['requestId']
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        print("reached")
+
+
+class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _rfai_request_repository = RequestDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+        request_id = event_data['requestId']
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        print("reached")

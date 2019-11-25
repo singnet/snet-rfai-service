@@ -80,13 +80,13 @@ def upgrade():
     conn.execute("""CREATE TABLE `rfai_vote` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
             `request_id`	int(11) NOT NULL,
-            `voter_solution`	varchar(50) NOT NULL,
+            `voter`	varchar(100) NOT NULL,
             `rfai_solution_id`	int(11),
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_vote` (`request_id`, `rfai_solution_id`),
+            UNIQUE KEY `uq_vote` (`voter`, `rfai_solution_id`),
             CONSTRAINT `RFAIVoteRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE,
             CONSTRAINT `RFAIVoteSolutionIdFK` FOREIGN KEY (`rfai_solution_id`) REFERENCES `rfai_solution` (`row_id`) ON DELETE CASCADE);
         """)
