@@ -57,7 +57,7 @@ def upgrade():
             `stake_member`	varchar(50) NOT NULL,
             `stake_amount`	int(20) NOT NULL,
             `claim_back_amount`	int(20) DEFAULT NULL,
-            `transaction_hash`	varchar(100) NOT NULL,
+            `transaction_hash`	varchar(255) NOT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
