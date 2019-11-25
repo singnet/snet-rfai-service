@@ -57,10 +57,12 @@ def upgrade():
             `stake_member`	varchar(50) NOT NULL,
             `stake_amount`	int(20) NOT NULL,
             `claim_back_amount`	int(20) DEFAULT NULL,
+            `transaction_hash`	varchar(100) NOT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
+            UNIQUE KEY `uq_txn_hash` (`transaction_hash`),
             CONSTRAINT `RFAIStakeRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE);
         """)
     conn.execute("""CREATE TABLE `rfai_solution` (
@@ -89,9 +91,11 @@ def upgrade():
             CONSTRAINT `RFAIVoteSolutionIdFK` FOREIGN KEY (`rfai_solution_id`) REFERENCES `rfai_solution` (`row_id`) ON DELETE CASCADE);
         """)
 
+
 def downgrade():
     conn = op.get_bind()
     conn.execute("""DROP TABLE rfai_stake;""")
     conn.execute("""DROP TABLE rfai_solution;""")
     conn.execute("""DROP TABLE rfai_vote;""")
     conn.execute("""DROP TABLE service_request;""")
+    conn.execute("""DROP TABLE foundationmembers;""")
