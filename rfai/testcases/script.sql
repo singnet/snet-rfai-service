@@ -16,10 +16,10 @@ VALUES(1, '0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b', 'https://beta.singularit
 INSERT INTO rfai_solution (request_id, submitter, doc_uri, claim_amount, created_at, row_created, row_updated)
 VALUES(1, '0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d', 'https://beta.singularitynet/service2', 0, str_to_date('2019-11-04 17:34:28', '%Y-%m-%d %H:%i:%s'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO rfai_vote (request_id, voter_solution, rfai_solution_id, created_at, row_created, row_updated)
+INSERT INTO rfai_vote (request_id, voter, rfai_solution_id, created_at, row_created, row_updated)
 VALUES(1, '0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC', 1, str_to_date('2019-11-04 17:34:28', '%Y-%m-%d %H:%i:%s'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO rfai_vote (request_id, voter_solution, rfai_solution_id, created_at, row_created, row_updated)
+INSERT INTO rfai_vote (request_id, voter, rfai_solution_id, created_at, row_created, row_updated)
 VALUES(1, '0xd03ea8624C8C5987235048901fB614fDcA89b117', 2, str_to_date('2019-11-04 17:34:28', '%Y-%m-%d %H:%i:%s'), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO foundation_member (member_address, role, status, request_actor, created_at, row_created, row_updated)
