@@ -12,6 +12,7 @@ from common.repository import Repository
 from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatusCodes
+from web3 import Web3
 
 logger = get_logger(__name__)
 
@@ -149,7 +150,8 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
 
         # from where we will get claim back amount
 
-        self._stake_dao_repository.create_stake(request_id, staker, amount, 0, created_at)
+        self._stake_dao_repository.create_stake(request_id, staker, amount, 0,
+                                                Web3.toHex(event["transactionHash"].encode("utf-8")), created_at)
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
