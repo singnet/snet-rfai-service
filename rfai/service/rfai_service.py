@@ -7,6 +7,7 @@ from rfai.dao.solution_data_access_object import SolutionDAO
 from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatusCodes
+import json
 
 obj_utils = Utils()
 obj_blockchain_utils = BlockChainUtil(provider_type="HTTP_PROVIDER", provider=NETWORK["http_provider"])
@@ -70,7 +71,7 @@ class RFAIService:
                 filter_parameter=filter_parameter)
 
         my_request = query_string_parameters.get("my_request", False)
-        requests = {}
+        requests = []
         for record in tmp_requests_data:
             if my_request and query_string_parameters["requester"] != record["requester"]:
                 continue
@@ -81,7 +82,7 @@ class RFAIService:
             record.update({"stake_count": stake_count["stake_count"]})
             record.update({"solution_count": solution_count["solution_count"]})
             record["created_at"] = str(record["created_at"])
-            requests.update(record)
+            requests.append(record)
         return requests
 
     def get_rfai_summary(self, requester, my_request):
