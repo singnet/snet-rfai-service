@@ -53,6 +53,7 @@ class RFAIEventConsumer(EventConsumer):
 class RFAICreateRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _rfai_request_repository = RequestDAO(_connection)
+    _stake_dao_repository = StakeDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
