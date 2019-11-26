@@ -49,4 +49,6 @@ class SolutionDAO:
         query_response = self.repo.execute(
             "SELECT row_id as rfai_solution_id, submitter, doc_uri, claim_amount, created_at FROM rfai_solution WHERE "
             "submitter = %s AND request_id = %s", [submitter, int(request_id)])
+        if len(query_response) == 0:
+            raise Exception(f"Unable to find solution for given submitter: {submitter} and request_id: {request_id}")
         return query_response[0]

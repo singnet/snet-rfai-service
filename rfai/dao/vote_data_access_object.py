@@ -40,7 +40,6 @@ class VoteDAO:
         query_response = self.repo.execute(
             "INSERT INTO rfai_vote (request_id, voter, rfai_solution_id, created_at, "
             "row_created, row_updated) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON DUPLICATE KEY "
-            "UPDATE request_id = %s, voter = %s, rfai_solution_id = %s, row_updated = %s",
-            [request_id, voter, rfai_solution_id, created_at, dt.utcnow(), dt.utcnow(), request_id, voter,
-             rfai_solution_id, dt.utcnow()])
+            "UPDATE request_id = %s, voter = %s, rfai_solution_id = %s, row_updated = CURRENT_TIMESTAMP",
+            [request_id, voter, rfai_solution_id, created_at, request_id, voter, rfai_solution_id])
         return query_response[0]

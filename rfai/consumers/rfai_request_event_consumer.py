@@ -12,6 +12,7 @@ from common.repository import Repository
 from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatusCodes
+from datetime import datetime as dt
 from web3 import Web3
 
 logger = get_logger(__name__)
@@ -65,6 +66,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
 
         self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
+        self._stake_dao_repository.create_stake(request_id, requester, amount, 0, event["data"]["transactionHash"],
+                                                dt.utcnow())
 
     def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
@@ -72,7 +75,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
 
         title = rfai_metadata['title']
-        requestor_name = requester
+        requester_name = requester
         description = rfai_metadata['description']
         git_hub_link = ''
         training_data_set_uri = rfai_metadata['training-dataset']
@@ -81,7 +84,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         created_at = rfai_metadata['created']
 
         self._rfai_request_repository.create_request(request_id, requester, total_fund, metadata_hash, expiration,
-                                                     end_submission, end_evaluation, status, title, requestor_name,
+                                                     end_submission, end_evaluation, status, title, requester_name,
                                                      description, git_hub_link, training_data_set_uri,
                                                      acceptance_criteria, request_actor, created_at)
 

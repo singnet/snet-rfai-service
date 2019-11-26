@@ -81,7 +81,8 @@ class RFAIService:
             record.update({"stake_count": stake_count["stake_count"]})
             record.update({"solution_count": solution_count["solution_count"]})
             record["created_at"] = str(record["created_at"])
-        return tmp_requests_data
+            requests.update(record)
+        return requests
 
     def get_rfai_summary(self, requester, my_request):
         request_summary = self.generate_rfai_summary(requester=requester, my_request=my_request)
