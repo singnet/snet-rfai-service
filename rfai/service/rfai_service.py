@@ -8,9 +8,11 @@ from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
 from rfai.rfai_status import RFAIStatusCodes
 import json
+from common.logger import get_logger
 
 obj_utils = Utils()
 obj_blockchain_utils = BlockChainUtil(provider_type="HTTP_PROVIDER", provider=NETWORK["http_provider"])
+logger = get_logger(__name__)
 
 
 class RFAIService:
@@ -83,6 +85,7 @@ class RFAIService:
             record.update({"solution_count": solution_count["solution_count"]})
             record["created_at"] = str(record["created_at"])
             requests.append(record)
+        logger.info(requests)
         return requests
 
     def get_rfai_summary(self, requester, my_request):
