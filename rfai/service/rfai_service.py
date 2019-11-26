@@ -59,6 +59,10 @@ class RFAIService:
                                                                                  "requester"],
                                                                              filter_parameter=filter_parameter)
 
+            elif status_code == RFAIStatusCodes.CLOSED.value:
+                tmp_requests_data = self.request_dao.get_closed_request(requester=query_string_parameters["requester"],
+                                                                        filter_parameter=filter_parameter)
+
             elif status_code == RFAIStatusCodes.INCOMPLETE.value:
                 tmp_requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
                                                                               filter_parameter=filter_parameter) + \
@@ -72,10 +76,10 @@ class RFAIService:
             tmp_requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
                 filter_parameter=filter_parameter)
 
-        my_request = query_string_parameters.get("my_request", False)
+        my_request = query_string_parameters.get("my_request", "false")
         requests = []
         for record in tmp_requests_data:
-            if my_request and query_string_parameters["requester"] != record["requester"]:
+            if my_request.lower() == "true" and query_string_parameters["requester"] != record["requester"]:
                 continue
             vote_count = self.vote_dao.get_votes_count_for_given_request(request_id=record["request_id"])
             stake_count = self.stake_dao.get_stake_count_for_given_request(request_id=record["request_id"])
