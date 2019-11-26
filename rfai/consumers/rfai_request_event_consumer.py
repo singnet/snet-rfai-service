@@ -226,7 +226,7 @@ class RFAIVoteRequestEventConsumer(RFAIEventConsumer):
                                                                                            submitter=event_data[
                                                                                                "submitter"])
         self._create_or_update_vote(request_id=request_id, voter=event_data["voter"],
-                                    rfai_solution_id=solution_data["row_id"])
+                                    rfai_solution_id=solution_data["rfai_solution_id"])
 
     def _create_or_update_vote(self, request_id, voter, rfai_solution_id):
         self._rfai_vote_repository.create_or_update_vote(request_id=request_id, voter=voter,
@@ -246,7 +246,7 @@ class RFAICloseRequestEventConsumer(RFAIEventConsumer):
         request_id = event_data['requestId']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
-        self._update_rfai_request_status_and_actor(request_id=request_id, status=RFAIStatusCodes.REJECTED.value,
+        self._update_rfai_request_status_and_actor(request_id=request_id, status=RFAIStatusCodes.CLOSED.value,
                                                    request_actor=event_data["actor"])
 
     def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
