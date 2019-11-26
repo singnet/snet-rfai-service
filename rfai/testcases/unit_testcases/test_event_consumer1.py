@@ -1,10 +1,11 @@
 import unittest
-
+import web3
+from web3 import Web3
 from common.repository import Repository
 from rfai.config import NETWORK, IPFS_URL
 from rfai.consumers.rfai_request_event_consumer import RFAIExtendRequestEventConsumer, \
     RFAIAddSolutionRequestEventConsumer, RFAIRejectRequestEventConsumer, RFAIAddFoundationMemberEventConsumer, \
-    RFAIApproveRequestEventConsumer, RFAIFundRequestEventConsumer, RFAICreateRequestEventConsumer, RFAICloseRequestEventConsumer
+    RFAIApproveRequestEventConsumer, RFAIFundRequestEventConsumer, RFAICreateRequestEventConsumer, RFAICloseRequestEventConsumer, RFAIVoteRequestEventConsumer
 from rfai.dao.request_data_access_object import RequestDAO
 
 
@@ -82,8 +83,8 @@ class TestOrganizationEventConsumer(unittest.TestCase):
     #                            '0x9c302750c50307D3Ad88eaA9a6506874a15cE4Cb'],
     #                           ['0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d']]
     #
-    #     # RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
-    #
+    #     RFAIFundRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
+
     # def extend_request_event_Consumer(self):
     #     event = {"data": {
     #         "row_id": 23,
@@ -194,40 +195,41 @@ class TestOrganizationEventConsumer(unittest.TestCase):
             "row_updated": "2019-11-25 07:20:25",
             "row_created": "2019-11-25 07:20:25"
         }}
+        RFAIVoteRequestEventConsumer(3, NETWORK['ws_provider'], IPFS_URL['url'], IPFS_URL['port']).on_event(event)
 
-    def test_claim_back_request_event_consumer(self):
-        event = {"data": {
-            "row_id": 39,
-            "block_no": 6843438,
-            "event": "ClaimBackRequest",
-            "json_str": "{'requestId': 8, 'stacker': '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1', 'amount': 200000000}",
-            "processed": 1,
-            "transactionHash": "b'\\xda\\xa3\\xb7\\xb0K\\xaa6\\x94\\xb1\\xc9\\x03["
-                               "\\xc4\\x04\\x99D\\xde\\x85\\xe1\\xccS\\xb5Z\\x91\\x9a\\x8f\\xad\\xf3\\xb6\\xcf\\xf3"
-                               "\\xed'",
-            "logIndex": "13",
-            "error_code": 200,
-            "error_msg": "",
-            "row_updated": "2019-11-25 07:56:25",
-            "row_created": "2019-11-25 07:56:25"
-        }}
-
-    def test_claim_request_event_consumer(self):
-        event = {"data": {
-            "row_id": 41,
-            "block_no": 6843627,
-            "event": "ClaimRequest",
-            "json_str": "{'requestId': 6, 'submitter': '0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC', 'amount': "
-                        "200000000}",
-            "processed": 1,
-            "transactionHash": "b'i\\\\Z&5Z\\xb8\\x18\\xff\\x10\\x0e\\x9e\\xfbe\\x86\\x88.\\x14\\xcd!Qv\\x00\\x836"
-                               "\\xfa\\xea\\xed\\x0eE\\xf4l'",
-            "logIndex": "12",
-            "error_code": 200,
-            "error_msg": "",
-            "row_updated": "2019-11-25 08:36:25",
-            "row_created": "2019-11-25 08:36:25"
-        }}
+    # def test_claim_back_request_event_consumer(self):
+    #     event = {"data": {
+    #         "row_id": 39,
+    #         "block_no": 6843438,
+    #         "event": "ClaimBackRequest",
+    #         "json_str": "{'requestId': 8, 'stacker': '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1', 'amount': 200000000}",
+    #         "processed": 1,
+    #         "transactionHash": "b'\\xda\\xa3\\xb7\\xb0K\\xaa6\\x94\\xb1\\xc9\\x03["
+    #                            "\\xc4\\x04\\x99D\\xde\\x85\\xe1\\xccS\\xb5Z\\x91\\x9a\\x8f\\xad\\xf3\\xb6\\xcf\\xf3"
+    #                            "\\xed'",
+    #         "logIndex": "13",
+    #         "error_code": 200,
+    #         "error_msg": "",
+    #         "row_updated": "2019-11-25 07:56:25",
+    #         "row_created": "2019-11-25 07:56:25"
+    #     }}
+    #
+    # def test_claim_request_event_consumer(self):
+    #     event = {"data": {
+    #         "row_id": 41,
+    #         "block_no": 6843627,
+    #         "event": "ClaimRequest",
+    #         "json_str": "{'requestId': 6, 'submitter': '0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC', 'amount': "
+    #                     "200000000}",
+    #         "processed": 1,
+    #         "transactionHash": "b'i\\\\Z&5Z\\xb8\\x18\\xff\\x10\\x0e\\x9e\\xfbe\\x86\\x88.\\x14\\xcd!Qv\\x00\\x836"
+    #                            "\\xfa\\xea\\xed\\x0eE\\xf4l'",
+    #         "logIndex": "12",
+    #         "error_code": 200,
+    #         "error_msg": "",
+    #         "row_updated": "2019-11-25 08:36:25",
+    #         "row_created": "2019-11-25 08:36:25"
+    #     }}
 
 
 if __name__ == '__main__':

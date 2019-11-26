@@ -75,6 +75,7 @@ def upgrade():
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
+            UNIQUE KEY `uq_solution` (`request_id`, `submitter`),
             CONSTRAINT `RFAISolutionRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE);
         """)
     conn.execute("""CREATE TABLE `rfai_vote` (
