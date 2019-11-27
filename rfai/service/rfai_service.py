@@ -99,8 +99,10 @@ class RFAIService:
         return request_summary
 
     def get_vote_details_for_given_request_id(self, request_id):
-        vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=request_id)
-        return vote_data
+        vote_details = self.rfai_request_dao.get_vote_details_for_given_request_id(request_id=request_id)
+        for record in vote_details:
+            record["created_at"] = str(record["created_at"])
+        return vote_details
 
     def get_stake_details_for_given_request_id(self, request_id):
         stake_data = self.stake_dao.get_stake_details_for_given_request_id(request_id=request_id)
@@ -152,10 +154,10 @@ class RFAIService:
         solution_data = self.rfai_request_dao.get_claims_data_for_solution_provider(submitter=user_address,
                                                                                     current_block_no=current_block_no)
         for record in solution_data:
-            request_id = solution_data["request_id"]
+            request_id = record["request_id"]
             request_data = self.request_dao.get_request_data_for_given_requester_and_status(
                 filter_parameter={"request_id": request_id})
             votes = self.vote_dao.get_vote_details_for_given_rfai_solution_id(rfai_solution_id=record["row_id"])
-            record.update({"request_title": request_data["request_title"], "votes": votes,
-                           "expiration": request_data["expiration"], "tokens": 0})
+            record.update({"request_title": request_data[0]["request_title"], "votes": votes,
+                           "expiration": request_data[0]["expiration"], "tokens": 0})
         return solution_data
