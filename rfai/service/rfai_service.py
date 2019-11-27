@@ -6,6 +6,7 @@ from rfai.dao.request_data_access_object import RequestDAO
 from rfai.dao.solution_data_access_object import SolutionDAO
 from rfai.dao.stake_data_access_object import StakeDAO
 from rfai.dao.vote_data_access_object import VoteDAO
+from rfai.dao.rfai_request_repository import RFAIRequestRepository
 from rfai.rfai_status import RFAIStatusCodes
 import json
 from common.logger import get_logger
@@ -22,6 +23,7 @@ class RFAIService:
         self.solution_dao = SolutionDAO(repo=repo)
         self.stake_dao = StakeDAO(repo=repo)
         self.foundation_member_dao = FoundationMemberDAO(repo=repo)
+        self.rfai_request_dao = RFAIRequestRepository(repo=repo)
 
     def _format_filter_params(self, query_parameters):
         filter_params = {}
@@ -144,3 +146,16 @@ class RFAIService:
                 filter_parameter={"status": RFAIStatusCodes.CLOSED.value}))
         }
         return rfai_summary
+
+    def get_claims_data_for_solution_provider(self, user_address):
+        current_block_no = obj_blockchain_utils.get_current_block_no()
+        solution_data = self.rfai_request_dao.get_claims_data_for_solution_provider(submitter=user_address,
+                                                                                    current_block_no=current_block_no)
+        for record in solution_data:
+            request_id = solution_data["request_id"]
+            request_data = self.request_dao.get_request_data_for_given_requester_and_status(
+                filter_parameter={"request_id": request_id})
+            votes = self.vote_dao.get_vote_details_for_given_rfai_solution_id(rfai_solution_id=record["row_id"])
+            record.update({"request_title": request_data["request_title"], "votes": votes,
+                           "expiration": request_data["expiration"], "tokens": 0})
+        return solution_data

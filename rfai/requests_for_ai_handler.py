@@ -148,3 +148,48 @@ def get_foundation_members_handler(event, context):
         util.report_slack(error_message, SLACK_HOOK)
         response = util.generate_lambda_response(500, error_message, cors_enabled=True)
     return response
+
+
+def get_claim_for_stakers_handler(event, context):
+    try:
+        logger.info(event)
+        valid_event = util.validate_dict(
+            data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_STAKE_FOR_REQUEST_EVENT)
+        if not valid_event:
+            return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
+        response_data = ""
+        response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
+    except Exception as e:
+        error_message = util.format_error_message(
+            status="failed",
+            error=repr(e),
+            payload=None,
+            net_id=NETWORK_ID,
+            handler="get_claim_for_stakers_handler"
+        )
+        util.report_slack(error_message, SLACK_HOOK)
+        response = util.generate_lambda_response(500, error_message, cors_enabled=True)
+    return response
+
+
+def get_claim_for_solution_provider_handler(event, context):
+    try:
+        logger.info(event)
+        valid_event = util.validate_dict(
+            data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_STAKE_FOR_REQUEST_EVENT)
+        if not valid_event:
+            return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
+        query_string_parameters = event["queryStringParameters"]
+        response_data = rfai.get_claims_data_for_solution_provider(user_address=query_string_parameters["user_address"])
+        response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
+    except Exception as e:
+        error_message = util.format_error_message(
+            status="failed",
+            error=repr(e),
+            payload=None,
+            net_id=NETWORK_ID,
+            handler="get_claim_for_solution_provider_handler"
+        )
+        util.report_slack(error_message, SLACK_HOOK)
+        response = util.generate_lambda_response(500, error_message, cors_enabled=True)
+    return response
