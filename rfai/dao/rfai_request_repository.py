@@ -25,5 +25,13 @@ def generate_sub_query_for_update_parameters(update_parameters):
 
 class RFAIRequestRepository(CommonRepository):
 
-    def __init__(self, connection):
-        super().__init__(connection)
+    def __init__(self, repo):
+        super().__init__(repo)
+        self.repo = repo
+
+    def get_claims_data_for_solution_provider(self, submitter, current_block_no):
+        query_response = self.repo.execute(
+            "SELECT row_id, request_id FROM rfai_solution rs WHERE submitter = %s AND request_id in (SELECT request_id "
+            "FROM service_request sr WHERE expiration > %s and end_evaluation < %s) AND row_id IN (SELECT "
+            "rfai_solution_id FROM rfai_vote rv)", [submitter, current_block_no, current_block_no])
+        return query_response

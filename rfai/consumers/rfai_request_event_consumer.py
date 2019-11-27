@@ -52,8 +52,8 @@ class RFAIEventConsumer(EventConsumer):
 
 class RFAICreateRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
-    _stake_dao_repository = StakeDAO(_connection)
+    _request_dao = RequestDAO(_connection)
+    _stake_dao = StakeDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -67,8 +67,8 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
 
         self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
-        self._stake_dao_repository.create_stake(request_id, requester, amount, 0, event["data"]["transactionHash"],
-                                                dt.utcnow())
+        self._stake_dao.create_stake(request_id, requester, amount, 0, event["data"]["transactionHash"],
+                                     dt.utcnow())
 
     def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
@@ -84,15 +84,15 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         request_actor = ''
         created_at = rfai_metadata['created']
 
-        self._rfai_request_repository.create_request(request_id, requester, total_fund, metadata_hash, expiration,
-                                                     end_submission, end_evaluation, status, title, requester_name,
-                                                     description, git_hub_link, training_data_set_uri,
-                                                     acceptance_criteria, request_actor, created_at)
+        self._request_dao.create_request(request_id, requester, total_fund, metadata_hash, expiration,
+                                         end_submission, end_evaluation, status, title, requester_name,
+                                         description, git_hub_link, training_data_set_uri,
+                                         acceptance_criteria, request_actor, created_at)
 
 
 class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _request_dao = RequestDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -105,12 +105,12 @@ class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
         requester = event_data['requester']
         request_id = event_data['requestId']
         filter_params = {"expiration": expiration}
-        self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
+        self._request_dao.update_request_for_given_request_id(request_id, filter_params)
 
 
 class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _request_dao = RequestDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -127,14 +127,14 @@ class RFAIApproveRequestEventConsumer(RFAIEventConsumer):
 
         filter_params = {"status": RFAIStatusCodes.APPROVED.value, "request_actor": approver,
                          "end_submission": end_submission, "end_evaluation": end_evaluation, "expiration": expiration}
-        self._rfai_request_repository.update_request_for_given_request_id(request_id, filter_params)
+        self._request_dao.update_request_for_given_request_id(request_id, filter_params)
         # from where we will get claim back amount
 
 
 class RFAIFundRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
-    _stake_dao_repository = StakeDAO(_connection)
+    _request_dao = RequestDAO(_connection)
+    _stake_dao = StakeDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -154,8 +154,8 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
 
         # from where we will get claim back amount
 
-        self._stake_dao_repository.create_stake(request_id, staker, amount, 0, event["data"]["transactionHash"],
-                                                created_at)
+        self._stake_dao.create_stake(request_id, staker, amount, 0, event["data"]["transactionHash"],
+                                     created_at)
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
@@ -197,7 +197,7 @@ class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
 
 class RFAIRejectRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _request_dao = RequestDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -211,7 +211,7 @@ class RFAIRejectRequestEventConsumer(RFAIEventConsumer):
                                                    request_actor=event_data["actor"])
 
     def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
-        self._rfai_request_repository.update_request_for_given_request_id(request_id=request_id, update_parameters={
+        self._request_dao.update_request_for_given_request_id(request_id=request_id, update_parameters={
             "status": status, "request_actor": request_actor})
 
 
@@ -226,8 +226,8 @@ class RFAIVoteRequestEventConsumer(RFAIEventConsumer):
     def on_event(self, event):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
-        solution_data = self._rfai_solution_repository.get_solution_id_for_given_submitter(request_id=request_id,
-                                                                                           submitter=event_data[
+        solution_data = self._rfai_solution_repository.get_solution_for_given_submitter_and_request_id(request_id=request_id,
+                                                                                                       submitter=event_data[
                                                                                                "submitter"])
         self._create_or_update_vote(request_id=request_id, voter=event_data["voter"],
                                     rfai_solution_id=solution_data["rfai_solution_id"])
@@ -240,7 +240,7 @@ class RFAIVoteRequestEventConsumer(RFAIEventConsumer):
 
 class RFAICloseRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _request_dao = RequestDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -254,28 +254,14 @@ class RFAICloseRequestEventConsumer(RFAIEventConsumer):
                                                    request_actor=event_data["actor"])
 
     def _update_rfai_request_status_and_actor(self, request_id, status, request_actor):
-        self._rfai_request_repository.update_request_for_given_request_id(request_id=request_id, update_parameters={
+        self._request_dao.update_request_for_given_request_id(request_id=request_id, update_parameters={
             "status": status, "request_actor": request_actor})
-
-
-class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
-    _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
-
-    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
-        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
-
-    def on_event(self, event):
-        event_data = self._get_event_data(event)
-        request_id = event_data['requestId']
-        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
-         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
-        print("reached")
 
 
 class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
-    _rfai_request_repository = RequestDAO(_connection)
+    _request_dao = RequestDAO(_connection)
+    _stake_dao = SolutionDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -285,4 +271,46 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
         request_id = event_data['requestId']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
-        print("reached")
+        claim_back_amount = event_data["amount"]
+        request_data = self._request_dao.get_request_data_for_given_requester_and_status(
+            filter_parameter={"request_id": request_id})
+        total_fund = request_data["total_fund"] - claim_back_amount
+        self._connection.begin_transaction()
+        try:
+            self._request_dao.update_request_for_given_request_id(request_id=request_id,
+                                                                  update_parameters={"total_fund": total_fund})
+            self._stake_dao.update_stake_for_given_request_id(request_id=request_id,
+                                                              update_parameters={"claim_back_amount": claim_back_amount})
+            self._connection.commit_transaction()
+        except Exception as e:
+            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
+            self._connection.rollback_transaction()
+
+
+class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
+    _connection = Repository(NETWORKS=NETWORK)
+    _solution_dao = SolutionDAO(_connection)
+    _request_dao = RequestDAO(_connection)
+
+    def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
+        super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
+
+    def on_event(self, event):
+        event_data = self._get_event_data(event)
+        request_id = event_data['requestId']
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
+         stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        claim_amount = event_data["amount"]
+        request_data = self._request_dao.get_request_data_for_given_requester_and_status(
+            filter_parameter={"request_id": request_id})
+        total_fund = request_data["total_fund"] - claim_amount
+        self._connection.begin_transaction()
+        try:
+            self._request_dao.update_request_for_given_request_id(request_id=request_id,
+                                                                  update_parameters={"total_fund": total_fund})
+            self._solution_dao.update_solution_for_given_request_id(request_id=request_id,
+                                                                    update_parameters={"claim_amount": claim_amount})
+            self._connection.commit_transaction()
+        except Exception as e:
+            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
+            self._connection.rollback_transaction()
