@@ -3,7 +3,8 @@ import unittest
 from unittest.mock import patch
 
 from rfai.requests_for_ai_handler import get_vote_for_request_handler, rfai_summary_handler, \
-    get_stake_for_request_handler, get_solution_for_request_handler, get_foundation_members_handler, request_handler
+    get_stake_for_request_handler, get_solution_for_request_handler, get_foundation_members_handler, request_handler, \
+    get_claim_for_solution_provider_handler
 
 from rfai.rfai_status import RFAIStatusCodes
 
@@ -19,7 +20,6 @@ class TestRFAIAPI(unittest.TestCase):
                                            "my_request": "False",
                                            "status": "pending"}}
         response = request_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
@@ -42,7 +42,6 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        print(response_body["data"])
         assert (response_body["data"] == [
             {'request_id': 2, 'requester': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'fund_total': 100,
              'documentURI': '0xf15BB7b899250a67C02fcEDA18706B79aC997884', 'expiration': 7348080,
@@ -58,7 +57,6 @@ class TestRFAIAPI(unittest.TestCase):
         event = {"resource": "/request/1/vote", "httpMethod": "GET",
                  "pathParameters": {"requestId": 1}}
         response = get_vote_for_request_handler(event=event, context=None)
-        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
@@ -121,6 +119,19 @@ class TestRFAIAPI(unittest.TestCase):
         assert (response_body["data"]["COMPLETED"] == 0)
         assert (response_body["data"]["REJECTED"] == 0)
         assert (response_body["data"]["CLOSED"] == 0)
+
+    @patch("common.utils.Utils.report_slack")
+    def test_get_claims_data_for_solution_provider(self, mock_report_slack):
+        event = {"resource": "/claim/submitter",
+                 "httpMethod": "GET",
+                 "queryStringParameters": {"user_address": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"}}
+        response = get_claim_for_solution_provider_handler(event=event, context=None)
+        assert (response["statusCode"] == 200)
+        response_body = json.loads(response["body"])
+        assert (response_body["status"] == "success")
+        assert (response_body["data"] == [
+            {"row_id": 1, "request_id": 1, "request_title": "Face Recognition", "votes": [{"votes": 1}],
+             "expiration": 7348080, "tokens": 0}])
 
 
 if __name__ == '__main__':
