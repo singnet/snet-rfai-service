@@ -157,7 +157,8 @@ def get_claim_for_stakers_handler(event, context):
             data_dict=event, required_keys=REQUIRED_KEYS_FOR_GET_STAKE_FOR_REQUEST_EVENT)
         if not valid_event:
             return util.generate_lambda_response(400, "Bad Request", cors_enabled=True)
-        response_data = ""
+        query_string_parameters = event["queryStringParameters"]
+        response_data = rfai.get_claims_data_for_stake_provider(user_address=query_string_parameters["user_address"])
         response = util.generate_lambda_response(200, {"status": "success", "data": response_data}, cors_enabled=True)
     except Exception as e:
         error_message = util.format_error_message(

@@ -1,5 +1,6 @@
 from rfai.dao.common_repository import CommonRepository
 from datetime import datetime as dt
+from rfai.rfai_status import RFAIStatusCodes
 
 
 def generate_sub_query_for_filter_params(filter_parameter):
@@ -40,4 +41,13 @@ class RFAIRequestRepository(CommonRepository):
         query_response = self.repo.execute("SELECT rv.voter, rv.created_at, rs.submitter FROM rfai_vote rv , "
                                            "rfai_solution rs WHERE rv.rfai_solution_id=rs.row_id AND rv.request_id = "
                                            "rs.request_id and rs.request_id = %s ", [request_id])
+        return query_response
+
+    def get_claim_details_for_stakers(self, current_block_no, stake_member):
+        query_response = self.repo.execute(
+            "SELECT request_id, request_title, expiration, status FROM service_request WHERE "
+            "(expiration < %s OR "
+            "status IN (%s, %s)) "
+            "AND request_id IN (SELECT request_id FROM rfai_stake WHERE stake_member = %s)",
+            [current_block_no, RFAIStatusCodes.CLOSED.value, RFAIStatusCodes.REJECTED.value, stake_member])
         return query_response
