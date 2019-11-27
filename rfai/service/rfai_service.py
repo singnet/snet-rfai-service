@@ -99,8 +99,8 @@ class RFAIService:
         return request_summary
 
     def get_vote_details_for_given_request_id(self, request_id):
-        vote_data = self.vote_dao.get_vote_details_for_given_request_id(request_id=request_id)
-        return vote_data
+        vote_details = self.rfai_request_dao.get_vote_details_for_given_request_id(request_id=request_id)
+        return vote_details
 
     def get_stake_details_for_given_request_id(self, request_id):
         stake_data = self.stake_dao.get_stake_details_for_given_request_id(request_id=request_id)

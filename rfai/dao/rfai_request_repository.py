@@ -35,3 +35,9 @@ class RFAIRequestRepository(CommonRepository):
             "FROM service_request sr WHERE expiration > %s and end_evaluation < %s) AND row_id IN (SELECT "
             "rfai_solution_id FROM rfai_vote rv)", [submitter, current_block_no, current_block_no])
         return query_response
+
+    def get_vote_details_for_given_request_id(self, request_id):
+        query_response = self.repo.execute("SELECT rv.voter, rv.created_at, rs.submitter FROM rfai_vote rv , "
+                                           "rfai_solution rs WHERE rv.rfai_solution_id=rs.row_id AND rv.request_id = "
+                                           "rs.request_id and rs.request_id = %s ", [request_id])
+        return query_response
