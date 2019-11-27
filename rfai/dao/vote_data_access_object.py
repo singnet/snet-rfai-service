@@ -15,7 +15,7 @@ class VoteDAO:
     def get_vote_details_for_given_rfai_solution_id(self, rfai_solution_id):
         query_response = self.repo.execute(
             "SELECT COUNT(*) as votes FROM rfai_vote WHERE rfai_solution_id = %s", int(rfai_solution_id))
-        return query_response
+        return query_response[0]
 
     def get_votes_count_for_given_request(self, request_id):
         query_response = self.repo.execute(

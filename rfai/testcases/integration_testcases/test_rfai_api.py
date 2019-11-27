@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from rfai.requests_for_ai_handler import get_vote_for_request_handler, rfai_summary_handler, \
     get_stake_for_request_handler, get_solution_for_request_handler, get_foundation_members_handler, request_handler, \
-    get_claim_for_solution_provider_handler
+    get_claim_for_solution_provider_handler, get_claim_for_stakers_handler
 
 from rfai.rfai_status import RFAIStatusCodes
 
@@ -130,8 +130,18 @@ class TestRFAIAPI(unittest.TestCase):
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
-            {"row_id": 1, "request_id": 1, "request_title": "Face Recognition", "votes": [{"votes": 1}],
-             "expiration": 7348080, "tokens": 0}])
+            {"row_id": 1, "request_id": 1, "request_title": "Face Recognition", "votes": 1,
+             "expiration": 7348080, "tokens": 0, "end_evaluation": 123458}])
+
+    @patch("common.utils.Utils.report_slack")
+    def test_get_claims_data_for_stake_provider(self, mock_report_slack):
+        event = {"resource": "/claim/stake",
+                 "httpMethod": "GET",
+                 "queryStringParameters": {"user_address": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"}}
+        response = get_claim_for_stakers_handler(event=event, context=None)
+        assert (response["statusCode"] == 200)
+        response_body = json.loads(response["body"])
+        assert (response_body["status"] == "success")
 
 
 if __name__ == '__main__':

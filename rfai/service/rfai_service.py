@@ -69,7 +69,10 @@ class RFAIService:
                 tmp_requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
                                                                               filter_parameter=filter_parameter) + \
                                     self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
-                                                                                  filter_parameter=filter_parameter)
+                                                                                  filter_parameter=filter_parameter) + \
+                                    self.request_dao.get_approved_request_with_no_votes(
+                                        current_block_no=current_block_no,
+                                        filter_parameter=filter_parameter)
             else:
                 filter_parameter.update({"status": getattr(RFAIStatusCodes, status).value})
                 tmp_requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
@@ -134,7 +137,9 @@ class RFAIService:
             "INCOMPLETE": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
                                                                         filter_parameter=filter_parameter))
                           + len(self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
-                                                                              filter_parameter=filter_parameter)),
+                                                                              filter_parameter=filter_parameter))
+                          + len(self.request_dao.get_approved_request_with_no_votes(current_block_no=current_block_no,
+                                                                                    filter_parameter=filter_parameter)),
             "ACTIVE": len(self.request_dao.get_approved_active_request(current_block_no=current_block_no,
                                                                        filter_parameter=filter_parameter)),
             "SOLUTION_VOTE": len(self.request_dao.get_approved_solution_vote_request(
@@ -158,6 +163,15 @@ class RFAIService:
             request_data = self.request_dao.get_request_data_for_given_requester_and_status(
                 filter_parameter={"request_id": request_id})
             votes = self.vote_dao.get_vote_details_for_given_rfai_solution_id(rfai_solution_id=record["row_id"])
-            record.update({"request_title": request_data[0]["request_title"], "votes": votes,
-                           "expiration": request_data[0]["expiration"], "tokens": 0})
+            record.update({"request_title": request_data[0]["request_title"], "votes": votes["votes"],
+                           "expiration": request_data[0]["expiration"], "tokens": 0,
+                           "end_evaluation": request_data[0]["end_evaluation"]})
         return solution_data
+
+    def get_claims_data_for_stake_provider(self, user_address):
+        current_block_no = obj_blockchain_utils.get_current_block_no()
+        stake_data = self.rfai_request_dao.get_claim_details_for_stakers(stake_member=user_address,
+                                                                         current_block_no=current_block_no)
+        for record in stake_data:
+            record["status"] = RFAIStatusCodes(record["status"]).name
+        return stake_data
