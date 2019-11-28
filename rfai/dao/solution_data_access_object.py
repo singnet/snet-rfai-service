@@ -28,7 +28,7 @@ class SolutionDAO:
 
     def update_solution_for_given_request_id(self, request_id, update_parameters):
         sub_query, sub_query_values = generate_sub_query_for_update_parameters(update_parameters=update_parameters)
-        query_response = self.repo.execute("UPDATE rfai_solution SET " + update_parameters + " WHERE request_id = %s",
+        query_response = self.repo.execute("UPDATE rfai_solution SET " + sub_query + " WHERE request_id = %s",
                                            sub_query_values + [request_id])
         return query_response[0]
 
