@@ -1,5 +1,6 @@
 from common.logger import get_logger
 import os
+import time
 from common.blockchain_util import BlockChainUtil
 from common.ipfs_util import IPFSUtil
 from rfai.config import NETWORK
@@ -59,6 +60,10 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        created_at_in_epoch = self._blockchain_util.get_created_at_for_block(block_no=event["data"]["block_no"]).get(
+            "timestamp", None)
+        if created_at_in_epoch is not None:
+            created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at_in_epoch))
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         requester = event_data['requester']
@@ -66,11 +71,12 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         amount = event_data['amount']
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
 
-        self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash)
-        self._stake_dao.create_stake(request_id, requester, amount, 0, event["data"]["transactionHash"],
-                                     dt.utcnow())
+        self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash, created_at)
+        self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
+                                     claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
+                                     created_at=created_at)
 
-    def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash):
+    def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash, created_at):
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
@@ -78,11 +84,10 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         title = rfai_metadata['title']
         requester_name = requester
         description = rfai_metadata['description']
-        git_hub_link = ''
+        git_hub_link = rfai_metadata['documentURI']
         training_data_set_uri = rfai_metadata['training-dataset']
         acceptance_criteria = rfai_metadata['acceptance-criteria']
         request_actor = ''
-        created_at = rfai_metadata['created']
 
         self._request_dao.create_request(request_id, requester, total_fund, metadata_hash, expiration,
                                          end_submission, end_evaluation, status, title, requester_name,
@@ -140,22 +145,19 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        created_at_in_epoch = self._blockchain_util.get_created_at_for_block(block_no=event["data"]["block_no"]).get(
+            "timestamp", None)
+        if created_at_in_epoch is not None:
+            created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at_in_epoch))
         event_data = self._get_event_data(event)
-
         request_id = event_data['requestId']
         staker = event_data['staker']
         amount = event_data['amount']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
-
-        metadata_hash = self._get_metadata_hash(document_uri)
-        rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
-        created_at = rfai_metadata['created']
-
-        # from where we will get claim back amount
-
-        self._stake_dao.create_stake(request_id, staker, amount, 0, event["data"]["transactionHash"],
-                                     created_at)
+        self._stake_dao.create_stake(request_id=request_id, stake_member=staker, stake_amount=amount,
+                                     claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
+                                     created_at=created_at)
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
@@ -166,14 +168,19 @@ class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        created_at_in_epoch = self._blockchain_util.get_created_at_for_block(block_no=event["data"]["block_no"]).get(
+            "timestamp", None)
+        if created_at_in_epoch is not None:
+            created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at_in_epoch))
         event_data = self._get_event_data(event)
         member_address = event_data['member']
         actor = event_data['actor']
         role = event_data['role']
         status = int(event_data['status'] == True)
-        # check for last attribute created_at, right now set as current time .
-        self._rfai_foundation_member_repository.create_or_update_foundation_member(member_address, role, status, actor,
-                                                                                   datetime.datetime.utcnow())
+        self._rfai_foundation_member_repository.create_or_update_foundation_member(member_address=member_address,
+                                                                                   role=role, status=status,
+                                                                                   request_actor=actor,
+                                                                                   created_at=created_at)
 
 
 class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
@@ -184,6 +191,10 @@ class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        created_at_in_epoch = self._blockchain_util.get_created_at_for_block(block_no=event["data"]["block_no"]).get(
+            "timestamp", None)
+        if created_at_in_epoch is not None:
+            created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at_in_epoch))
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         result = self._get_rfai_service_request_by_id(request_id)
@@ -192,7 +203,7 @@ class RFAIAddSolutionRequestEventConsumer(RFAIEventConsumer):
         self._rfai_solution_repository.create_or_update_solution(request_id=request_id,
                                                                  submitter=event_data["submitter"],
                                                                  doc_uri=event_data["solutionDocURI"], claim_amount=0,
-                                                                 created_at=datetime.datetime.utcnow())
+                                                                 created_at=created_at)
 
 
 class RFAIRejectRequestEventConsumer(RFAIEventConsumer):
@@ -224,18 +235,23 @@ class RFAIVoteRequestEventConsumer(RFAIEventConsumer):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
 
     def on_event(self, event):
+        created_at_in_epoch = self._blockchain_util.get_created_at_for_block(block_no=event["data"]["block_no"]).get(
+            "timestamp", None)
+        if created_at_in_epoch is not None:
+            created_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created_at_in_epoch))
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
-        solution_data = self._rfai_solution_repository.get_solution_for_given_submitter_and_request_id(request_id=request_id,
-                                                                                                       submitter=event_data[
-                                                                                               "submitter"])
+        solution_data = self._rfai_solution_repository.get_solution_for_given_submitter_and_request_id(
+            request_id=request_id,
+            submitter=event_data[
+                "submitter"])
         self._create_or_update_vote(request_id=request_id, voter=event_data["voter"],
-                                    rfai_solution_id=solution_data["rfai_solution_id"])
+                                    rfai_solution_id=solution_data["rfai_solution_id"], created_at=created_at)
 
-    def _create_or_update_vote(self, request_id, voter, rfai_solution_id):
+    def _create_or_update_vote(self, request_id, voter, rfai_solution_id, created_at):
         self._rfai_vote_repository.create_or_update_vote(request_id=request_id, voter=voter,
                                                          rfai_solution_id=rfai_solution_id,
-                                                         created_at=datetime.datetime.utcnow())
+                                                         created_at=created_at)
 
 
 class RFAICloseRequestEventConsumer(RFAIEventConsumer):
@@ -280,7 +296,8 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
                                                                   update_parameters={"total_fund": total_fund})
             self._stake_dao.update_stake_for_given_request_id(request_id=request_id,
-                                                              update_parameters={"claim_back_amount": claim_back_amount})
+                                                              update_parameters={
+                                                                  "claim_back_amount": claim_back_amount})
             self._connection.commit_transaction()
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
@@ -303,7 +320,7 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
         claim_amount = event_data["amount"]
         request_data = self._request_dao.get_request_data_for_given_requester_and_status(
             filter_parameter={"request_id": request_id})
-        total_fund = request_data["total_fund"] - claim_amount
+        total_fund = request_data[0]["fund_total"] - claim_amount
         self._connection.begin_transaction()
         try:
             self._request_dao.update_request_for_given_request_id(request_id=request_id,

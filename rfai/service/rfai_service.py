@@ -131,26 +131,27 @@ class RFAIService:
         filter_parameter = {}
         current_block_no = obj_blockchain_utils.get_current_block_no()
         rfai_summary = {
-            "PENDING": len(self.request_dao.get_open_active_request(current_block_no=current_block_no,
-                                                                    requester=requester,
-                                                                    filter_parameter=filter_parameter)),
-            "INCOMPLETE": len(self.request_dao.get_open_expired_request(current_block_no=current_block_no,
-                                                                        filter_parameter=filter_parameter))
-                          + len(self.request_dao.get_approved_expired_request(current_block_no=current_block_no,
-                                                                              filter_parameter=filter_parameter))
-                          + len(self.request_dao.get_approved_request_with_no_votes(current_block_no=current_block_no,
-                                                                                    filter_parameter=filter_parameter)),
-            "ACTIVE": len(self.request_dao.get_approved_active_request(current_block_no=current_block_no,
-                                                                       filter_parameter=filter_parameter)),
-            "SOLUTION_VOTE": len(self.request_dao.get_approved_solution_vote_request(
-                current_block_no=current_block_no,
-                filter_parameter=filter_parameter)),
-            "COMPLETED": len(self.request_dao.get_approved_completed_request(current_block_no=current_block_no,
-                                                                             filter_parameter=filter_parameter)),
-            "REJECTED": len(self.request_dao.get_request_data_for_given_requester_and_status(
-                filter_parameter={"status": RFAIStatusCodes.REJECTED.value})),
-            "CLOSED": len(self.request_dao.get_request_data_for_given_requester_and_status(
-                filter_parameter={"status": RFAIStatusCodes.CLOSED.value}))
+            "PENDING": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                      "status": RFAIStatusCodes.PENDING.name,
+                                                                      "my_request": my_request})),
+            "INCOMPLETE": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                         "status": RFAIStatusCodes.INCOMPLETE.name,
+                                                                         "my_request": my_request})),
+            "ACTIVE": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                     "status": RFAIStatusCodes.ACTIVE.name,
+                                                                     "my_request": my_request})),
+            "SOLUTION_VOTE": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                            "status": RFAIStatusCodes.SOLUTION_VOTE.name,
+                                                                            "my_request": my_request})),
+            "COMPLETED": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                        "status": RFAIStatusCodes.COMPLETED.name,
+                                                                        "my_request": my_request})),
+            "REJECTED": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                       "status": RFAIStatusCodes.REJECTED.name,
+                                                                       "my_request": my_request})),
+            "CLOSED": len(self.get_requests(query_string_parameters={"requester": requester,
+                                                                     "status": RFAIStatusCodes.CLOSED.name,
+                                                                     "my_request": my_request}))
         }
         return rfai_summary
 
