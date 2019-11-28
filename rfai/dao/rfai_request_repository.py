@@ -32,7 +32,7 @@ class RFAIRequestRepository(CommonRepository):
 
     def get_claims_data_for_solution_provider(self, submitter, current_block_no):
         query_response = self.repo.execute(
-            "SELECT row_id, request_id FROM rfai_solution rs WHERE submitter = %s AND request_id in (SELECT request_id "
+            "SELECT row_id, request_id FROM rfai_solution rs WHERE submitter = %s AND claim_amount = 0 AND request_id in (SELECT request_id "
             "FROM service_request sr WHERE expiration > %s and end_evaluation < %s) AND row_id IN (SELECT "
             "rfai_solution_id FROM rfai_vote rv)", [submitter, current_block_no, current_block_no])
         return query_response
@@ -48,6 +48,6 @@ class RFAIRequestRepository(CommonRepository):
             "SELECT request_id, request_title, expiration, status FROM service_request WHERE "
             "(expiration < %s OR "
             "status IN (%s, %s)) "
-            "AND request_id IN (SELECT request_id FROM rfai_stake WHERE stake_member = %s)",
+            "AND request_id IN (SELECT request_id FROM rfai_stake WHERE stake_member = %s AND claim_back_amount = 0)",
             [current_block_no, RFAIStatusCodes.CLOSED.value, RFAIStatusCodes.REJECTED.value, stake_member])
         return query_response
