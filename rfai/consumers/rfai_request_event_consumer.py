@@ -95,7 +95,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         acceptance_criteria = rfai_metadata['acceptance-criteria']
         request_actor = ''
 
-        self._request_dao.create_request(request_id=request_id, requester=requester, request_fund=total_fund,
+        self._request_dao.create_request(request_id=request_id, requester=requester, request_fund=amount,
                                          fund_total=total_fund, document_uri=metadata_hash, expiration=expiration,
                                          end_submission=end_submission, end_evaluation=end_evaluation, status=status,
                                          request_title=title, requester_name=requester_name,  description=description,
@@ -168,11 +168,13 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
             filter_parameter={"request_id": request_id})[0]["request_fund"] + amount
         self._connection.begin_transaction()
         try:
+            # get
             self._stake_dao.create_stake(request_id=request_id, stake_member=staker, stake_amount=amount,
-                                         claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
+                                         claim_back_amount=amount, transaction_hash=event["data"]["transactionHash"],
                                          created_at=created_at)
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
-                                                                  update_parameters={"request_fund": request_fund})
+                                                                  update_parameters={"request_fund": request_fund,
+                                                                                     "fund_total": total_fund})
             self._connection.commit_transaction()
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
@@ -309,14 +311,13 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
         claim_back_amount = event_data["amount"]
         request_data = self._request_dao.get_request_data_for_given_requester_and_status(
             filter_parameter={"request_id": request_id})
-        fund_total = request_data[0]["fund_total"] - claim_back_amount
         self._connection.begin_transaction()
         try:
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
-                                                                  update_parameters={"fund_total": fund_total})
+                                                                  update_parameters={"fund_total": total_fund})
             self._stake_dao.update_stake_for_given_request_id(request_id=request_id,
                                                               update_parameters={
-                                                                  "claim_back_amount": claim_back_amount})
+                                                                  "claim_back_amount": 0})
             self._connection.commit_transaction()
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
@@ -334,16 +335,15 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
     def on_event(self, event):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
-        [found, request_id, requester, fund_total, document_uri, expiration, end_submission, end_evaluation, status,
+        [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         claim_amount = event_data["amount"]
         request_data = self._request_dao.get_request_data_for_given_requester_and_status(
             filter_parameter={"request_id": request_id})
-        fund_total = request_data[0]["fund_total"] - claim_amount
         self._connection.begin_transaction()
         try:
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
-                                                                  update_parameters={"fund_total": fund_total})
+                                                                  update_parameters={"fund_total": total_fund})
             self._solution_dao.update_solution_for_given_request_id(request_id=request_id,
                                                                     update_parameters={"claim_amount": claim_amount})
             self._connection.commit_transaction()
