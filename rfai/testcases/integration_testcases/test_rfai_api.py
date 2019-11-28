@@ -57,10 +57,15 @@ class TestRFAIAPI(unittest.TestCase):
         event = {"resource": "/request/1/vote", "httpMethod": "GET",
                  "pathParameters": {"requestId": 1}}
         response = get_vote_for_request_handler(event=event, context=None)
+        print(response)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
-        assert (response_body["data"] == [{"voter": "0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC", "created_at": "2019-11-04 17:34:28", "submitter": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"}, {"voter": "0xd03ea8624C8C5987235048901fB614fDcA89b117", "created_at": "2019-11-04 17:34:28", "submitter": "0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d"}])
+        assert (response_body["data"] == [
+            {"voter": "0x95cED938F7991cd0dFcb48F0a06a40FA1aF46EBC", "created_at": "2019-11-04 17:34:28",
+             "submitter": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"},
+            {"voter": "0xd03ea8624C8C5987235048901fB614fDcA89b117", "created_at": "2019-11-04 17:34:28",
+             "submitter": "0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d"}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_stake_for_given_request_id(self, mock_report_slack):
@@ -124,14 +129,14 @@ class TestRFAIAPI(unittest.TestCase):
     def test_get_claims_data_for_solution_provider(self, mock_report_slack):
         event = {"resource": "/claim/submitter",
                  "httpMethod": "GET",
-                 "queryStringParameters": {"user_address": "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b"}}
+                 "queryStringParameters": {"user_address": "0xE11BA2b4D45Eaed5996Cd0823791E0C93114882d"}}
         response = get_claim_for_solution_provider_handler(event=event, context=None)
         assert (response["statusCode"] == 200)
         response_body = json.loads(response["body"])
         assert (response_body["status"] == "success")
         assert (response_body["data"] == [
-            {"row_id": 1, "request_id": 1, "request_title": "Face Recognition", "votes": 1,
-             "expiration": 7348080, "tokens": 0, "end_evaluation": 123458}])
+            {"row_id": 2, "request_id": 1, "request_title": "Face Recognition", "votes": 1, "expiration": 7348080,
+             "tokens": 0, "end_evaluation": 123458}])
 
     @patch("common.utils.Utils.report_slack")
     def test_get_claims_data_for_stake_provider(self, mock_report_slack):

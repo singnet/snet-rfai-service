@@ -111,3 +111,7 @@ class BlockChainUtil(object):
         result=function(positional_inputs).call()
         return result
 
+    def get_created_at_for_block(self, block_no):
+        block_details = self.web3_object.eth.getBlock(block_no)
+        return block_details
+
