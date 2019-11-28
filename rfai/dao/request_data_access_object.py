@@ -112,16 +112,16 @@ class RequestDAO:
             + sub_query, [requester, requester] + sub_query_values)
         return query_response
 
-    def create_request(self, request_id, requester, fund_total, document_uri, expiration, end_submission,
+    def create_request(self, request_id, requester, request_fund, fund_total, document_uri, expiration, end_submission,
                        end_evaluation, status, request_title, requester_name, description, git_hub_link,
                        training_data_set_uri, acceptance_criteria, request_actor, created_at):
 
         query_response = self.repo.execute(
-            "INSERT INTO service_request (request_id, requester, fund_total, documentURI,  expiration, end_submission, "
+            "INSERT INTO service_request (request_id, requester, request_fund, fund_total, documentURI,  expiration, end_submission, "
             "end_evaluation, status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
             "acceptance_criteria,  request_actor, created_at, row_created, row_updated) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)",
-            [request_id, requester, fund_total, document_uri, expiration, end_submission, end_evaluation, status,
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)",
+            [request_id, requester, request_fund, fund_total, document_uri, expiration, end_submission, end_evaluation, status,
              request_title, requester_name, description, git_hub_link, training_data_set_uri, acceptance_criteria,
              request_actor, created_at, dt.utcnow(), dt.utcnow()])
 
@@ -144,7 +144,7 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request WHERE expiration > %s AND "
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = %s AND expiration > %s AND "
             "end_evaluation < %s AND request_id NOT IN (select request_id FROM rfai_vote rv) " + sub_query,
-            [current_block_no, current_block_no] + sub_query_values)
+            [RFAIStatusCodes.APPROVED.value, current_block_no, current_block_no] + sub_query_values)
         return query_response

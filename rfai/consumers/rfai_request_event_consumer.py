@@ -71,10 +71,16 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         amount = event_data['amount']
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
 
-        self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash, created_at)
-        self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
-                                     claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
-                                     created_at=created_at)
+        self._connection.begin_transaction()
+        try:
+            self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash, created_at)
+            self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
+                                         claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
+                                         created_at=created_at)
+            self._connection.commit_transaction()
+        except Exception as e:
+            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
+            self._connection.rollback_transaction()
 
     def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash, created_at):
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
@@ -155,9 +161,19 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         amount = event_data['amount']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
-        self._stake_dao.create_stake(request_id=request_id, stake_member=staker, stake_amount=amount,
-                                     claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
-                                     created_at=created_at)
+        request_fund = self._request_dao.get_request_data_for_given_requester_and_status(
+            filter_parameter={"request_id": request_id})[0]["request_fund"] + amount
+        self._connection.begin_transaction()
+        try:
+            self._stake_dao.create_stake(request_id=request_id, stake_member=staker, stake_amount=amount,
+                                         claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
+                                         created_at=created_at)
+            self._request_dao.update_request_for_given_request_id(request_id=request_id,
+                                                                  update_parameters={"request_fund": request_fund})
+            self._connection.commit_transaction()
+        except Exception as e:
+            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
+            self._connection.rollback_transaction()
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
@@ -277,7 +293,7 @@ class RFAICloseRequestEventConsumer(RFAIEventConsumer):
 class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _request_dao = RequestDAO(_connection)
-    _stake_dao = SolutionDAO(_connection)
+    _stake_dao = StakeDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
