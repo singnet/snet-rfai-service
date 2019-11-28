@@ -20,6 +20,7 @@ def upgrade():
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
             `request_id`	int(11) NOT NULL,
             `requester`	varchar(50) DEFAULT NULL,
+            `request_fund`	int(11),
             `fund_total`	int(11),
             `documentURI`	Varchar(255),
             `expiration`	int(11),
