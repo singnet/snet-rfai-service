@@ -95,10 +95,13 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         acceptance_criteria = rfai_metadata['acceptance-criteria']
         request_actor = ''
 
-        self._request_dao.create_request(request_id, requester, total_fund, metadata_hash, expiration,
-                                         end_submission, end_evaluation, status, title, requester_name,
-                                         description, git_hub_link, training_data_set_uri,
-                                         acceptance_criteria, request_actor, created_at)
+        self._request_dao.create_request(request_id=request_id, requester=requester, request_fund=total_fund,
+                                         fund_total=total_fund, document_uri=metadata_hash, expiration=expiration,
+                                         end_submission=end_submission, end_evaluation=end_evaluation, status=status,
+                                         request_title=title, requester_name=requester_name,  description=description,
+                                         git_hub_link=git_hub_link, training_data_set_uri=training_data_set_uri,
+                                         acceptance_criteria=acceptance_criteria, request_actor=request_actor,
+                                         created_at=created_at)
 
 
 class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
