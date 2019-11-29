@@ -63,8 +63,18 @@ def upgrade():
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_txn_hash` (`request_id`, `stake_member`),
+            UNIQUE KEY `uq_staker` (`request_id`, `stake_member`),
             CONSTRAINT `RFAIStakeRequestIdFK` FOREIGN KEY (`request_id`) REFERENCES `service_request` (`request_id`) ON DELETE CASCADE);
+        """)
+    conn.execute("""CREATE TABLE `fund_request_transaction` (
+            `row_id`        int(11) NOT NULL AUTO_INCREMENT,
+            `stake_member`	varchar(50) NOT NULL,
+            `transaction_hash`	varchar(255) NOT NULL,
+            `created_at`	timestamp NULL DEFAULT NULL,
+            `row_created`	timestamp NULL DEFAULT NULL,
+            `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`row_id`),
+            UNIQUE KEY `uq_trxn_hash` (`transaction_hash`)
         """)
     conn.execute("""CREATE TABLE `rfai_solution` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
