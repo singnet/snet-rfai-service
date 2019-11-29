@@ -59,3 +59,9 @@ class RFAIRequestRepository(CommonRepository):
                                            "claim_amount_for_soln_provider, V.rfai_solution_id FROM rfai_vote V "
                                            "WHERE V.rfai_solution_id = %s", [rfai_solution_id])
         return query_response
+
+    def get_vote_details_for_given_request_id_and_submitter(self, request_id, submitter):
+        query_response = self.repo.execute(
+            "SELECT voter FROM rfai_vote WHERE rfai_solution_id = (SELECT row_id FROM rfai_solution WHERE submitter = %s "
+            "AND request_id = %s)", [submitter, request_id])
+        return query_response
