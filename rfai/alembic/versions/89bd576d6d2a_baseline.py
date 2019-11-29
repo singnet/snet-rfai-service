@@ -58,7 +58,6 @@ def upgrade():
             `stake_member`	varchar(50) NOT NULL,
             `stake_amount`	int(20) NOT NULL,
             `claim_back_amount`	int(20) DEFAULT NULL,
-            `transaction_hash`	varchar(255) NOT NULL,
             `created_at`	timestamp NULL DEFAULT NULL,
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -74,7 +73,7 @@ def upgrade():
             `row_created`	timestamp NULL DEFAULT NULL,
             `row_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`row_id`),
-            UNIQUE KEY `uq_trxn_hash` (`transaction_hash`)
+            UNIQUE KEY `uq_trxn_hash` (`transaction_hash`));
         """)
     conn.execute("""CREATE TABLE `rfai_solution` (
             `row_id`        int(11) NOT NULL AUTO_INCREMENT,
