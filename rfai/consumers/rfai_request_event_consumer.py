@@ -179,7 +179,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         found, stake_amount = self._get_stake_by_id(request_id=request_id, staker=staker)
         if not found:
-            raise Exception("Unable to fetch stake amount from blockchain.")
+            stake_amount = 0
         request_fund = self._request_dao.get_request_data_for_given_requester_and_status(
             filter_parameter={"request_id": request_id})[0]["request_fund"] + funded_amount
         self._connection.begin_transaction()
@@ -370,7 +370,7 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
             for record in voters_data:
                 found, stake_amount = self._get_stake_by_id(request_id=request_id, staker=record["voter"])
                 if not found:
-                    raise Exception("Unable to fetch stake amount from blockchain.")
+                    stake_amount = 0
                 self._stake_dao.update_stake_for_given_request_id(request_id=request_id,
                                                                   update_parameters={"claim_back_amount": stake_amount})
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
