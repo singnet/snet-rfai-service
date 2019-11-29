@@ -51,3 +51,11 @@ class RFAIRequestRepository(CommonRepository):
             "AND request_id IN (SELECT request_id FROM rfai_stake WHERE stake_member = %s AND claim_back_amount = 0)",
             [current_block_no, RFAIStatusCodes.CLOSED.value, RFAIStatusCodes.REJECTED.value, stake_member])
         return query_response
+
+    def get_claim_amount_for_solution_provider(self, rfai_solution_id):
+        query_response = self.repo.execute("SELECT SUM((SELECT stake_amount FROM rfai_stake WHERE request_id = "
+                                           "V.request_id AND stake_member = V.voter)/(SELECT count(*) FROM rfai_vote "
+                                           "WHERE voter = V.voter AND request_id = V.request_id )) AS "
+                                           "claim_amount_for_soln_provider, V.rfai_solution_id FROM rfai_vote V "
+                                           "WHERE V.rfai_solution_id = %s", [rfai_solution_id])
+        return query_response

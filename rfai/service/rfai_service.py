@@ -164,8 +164,11 @@ class RFAIService:
             request_data = self.request_dao.get_request_data_for_given_requester_and_status(
                 filter_parameter={"request_id": request_id})
             votes = self.vote_dao.get_vote_details_for_given_rfai_solution_id(rfai_solution_id=record["row_id"])
+            claim_amount_data = self.rfai_request_dao.get_claim_amount_for_solution_provider(
+                rfai_solution_id=record["row_id"])
             record.update({"request_title": request_data[0]["request_title"], "votes": votes["votes"],
-                           "expiration": request_data[0]["expiration"], "tokens": 0,
+                           "expiration": request_data[0]["expiration"],
+                           "tokens": claim_amount_data[0]["claim_amount_for_soln_provider"],
                            "end_evaluation": request_data[0]["end_evaluation"]})
         return solution_data
 
@@ -175,4 +178,6 @@ class RFAIService:
                                                                          current_block_no=current_block_no)
         for record in stake_data:
             record["status"] = RFAIStatusCodes(record["status"]).name
+            record["claim_back_amount"] = self.stake_dao.get_stake_details_for_given_request_id_and_stake_member(
+                request_id=record["request_id"], stake_member=user_address)[0]["claim_back_amount"]
         return stake_data
