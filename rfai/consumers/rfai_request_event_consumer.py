@@ -8,6 +8,8 @@ from rfai.consumers.event_consumer import EventConsumer
 from rfai.dao.foundation_member_data_access_object import FoundationMemberDAO
 from rfai.dao.request_data_access_object import RequestDAO
 from rfai.dao.solution_data_access_object import SolutionDAO
+from rfai.dao.fund_request_transaction_data_access_object import FundRequestTransactionDAO
+from rfai.dao.rfai_request_repository import RFAIRequestRepository
 import datetime
 from common.repository import Repository
 from rfai.dao.stake_data_access_object import StakeDAO
@@ -47,7 +49,12 @@ class RFAIEventConsumer(EventConsumer):
 
     def _get_rfai_service_request_by_id(self, request_id):
         rfai_contract = self._get_rfai_contract()
-        result = self._blockchain_util.call_contract_function(rfai_contract, "getServiceRequestById", request_id)
+        result = self._blockchain_util.call_contract_function(rfai_contract, "getServiceRequestById", (request_id,))
+        return result
+
+    def _get_stake_by_id(self, request_id, staker):
+        rfai_contract = self._get_rfai_contract()
+        result = self._blockchain_util.call_contract_function(rfai_contract, "getStakeById", [request_id, staker])
         return result
 
 
@@ -55,6 +62,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _request_dao = RequestDAO(_connection)
     _stake_dao = StakeDAO(_connection)
+    _fund_request_trxn_dao = FundRequestTransactionDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -70,19 +78,10 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         expiration = event_data['expiration']
         amount = event_data['amount']
         metadata_hash = self._get_metadata_hash(event_data['documentURI'])
+        self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash, created_at, event)
 
-        self._connection.begin_transaction()
-        try:
-            self._process_create_request_event(request_id, requester, expiration, amount, metadata_hash, created_at)
-            self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
-                                         claim_back_amount=0, transaction_hash=event["data"]["transactionHash"],
-                                         created_at=created_at)
-            self._connection.commit_transaction()
-        except Exception as e:
-            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
-            self._connection.rollback_transaction()
-
-    def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash, created_at):
+    def _process_create_request_event(self, request_id, requester, expiration, amount, metadata_hash, created_at,
+                                      event):
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
         rfai_metadata = eval(self._get_rfai_metadata_from_ipfs(metadata_hash))
@@ -95,13 +94,26 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         acceptance_criteria = rfai_metadata['acceptance-criteria']
         request_actor = ''
 
-        self._request_dao.create_request(request_id=request_id, requester=requester, request_fund=amount,
-                                         fund_total=total_fund, document_uri=metadata_hash, expiration=expiration,
-                                         end_submission=end_submission, end_evaluation=end_evaluation, status=status,
-                                         request_title=title, requester_name=requester_name,  description=description,
-                                         git_hub_link=git_hub_link, training_data_set_uri=training_data_set_uri,
-                                         acceptance_criteria=acceptance_criteria, request_actor=request_actor,
-                                         created_at=created_at)
+        self._connection.begin_transaction()
+        try:
+            self._request_dao.create_request(request_id=request_id, requester=requester, request_fund=amount,
+                                             fund_total=total_fund, document_uri=metadata_hash, expiration=expiration,
+                                             end_submission=end_submission, end_evaluation=end_evaluation,
+                                             status=status,
+                                             request_title=title, requester_name=requester_name,
+                                             description=description,
+                                             git_hub_link=git_hub_link, training_data_set_uri=training_data_set_uri,
+                                             acceptance_criteria=acceptance_criteria, request_actor=request_actor,
+                                             created_at=created_at)
+            self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
+                                         claim_back_amount=0, created_at=created_at)
+            self._fund_request_trxn_dao.persist_transaction(stake_member=requester,
+                                                            transaction_hash=event["data"]["transactionHash"],
+                                                            created_at=created_at)
+            self._connection.commit_transaction()
+        except Exception as e:
+            logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
+            self._connection.rollback_transaction()
 
 
 class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
@@ -149,6 +161,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _request_dao = RequestDAO(_connection)
     _stake_dao = StakeDAO(_connection)
+    _fund_request_trxn_dao = FundRequestTransactionDAO(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -161,17 +174,25 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         event_data = self._get_event_data(event)
         request_id = event_data['requestId']
         staker = event_data['staker']
-        amount = event_data['amount']
+        funded_amount = event_data['amount']
         [found, request_id, requester, total_fund, document_uri, expiration, end_submission, end_evaluation, status,
          stake_members, submitters] = self._get_rfai_service_request_by_id(request_id)
+        found, stake_amount = self._get_stake_by_id(request_id=request_id, staker=staker)
+        if not found:
+            raise Exception("Unable to fetch stake amount from blockchain.")
         request_fund = self._request_dao.get_request_data_for_given_requester_and_status(
-            filter_parameter={"request_id": request_id})[0]["request_fund"] + amount
+            filter_parameter={"request_id": request_id})[0]["request_fund"] + funded_amount
         self._connection.begin_transaction()
         try:
-            # get
-            self._stake_dao.create_stake(request_id=request_id, stake_member=staker, stake_amount=amount,
-                                         claim_back_amount=amount, transaction_hash=event["data"]["transactionHash"],
-                                         created_at=created_at)
+            self._stake_dao.create_or_update_stake(request_id=request_id, stake_member=staker,
+                                                   stake_amount=funded_amount, claim_back_amount=stake_amount,
+                                                   created_at=created_at)
+            self._stake_dao.add_stake_amount(request_id=request_id, stake_member=stake_members,
+                                             stake_amount=funded_amount)
+
+            self._fund_request_trxn_dao.persist_transaction(stake_member=requester,
+                                                            transaction_hash=event["data"]["transactionHash"],
+                                                            created_at=created_at)
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
                                                                   update_parameters={"request_fund": request_fund,
                                                                                      "fund_total": total_fund})
@@ -327,7 +348,9 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
 class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
     _connection = Repository(NETWORKS=NETWORK)
     _solution_dao = SolutionDAO(_connection)
+    _stake_dao = StakeDAO(_connection)
     _request_dao = RequestDAO(_connection)
+    _rfai_request_repository = RFAIRequestRepository(_connection)
 
     def __init__(self, net_id, ws_provider, ipfs_url, ipfs_port):
         super().__init__(net_id, ws_provider, ipfs_url, ipfs_port)
@@ -342,6 +365,14 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
             filter_parameter={"request_id": request_id})
         self._connection.begin_transaction()
         try:
+            voters_data = self._rfai_request_repository.get_vote_details_for_given_request_id_and_submitter(
+                request_id=request_id, submitter=event_data["submitter"])
+            for record in voters_data:
+                found, stake_amount = self._get_stake_by_id(request_id=request_id, staker=record["voter"])
+                if not found:
+                    raise Exception("Unable to fetch stake amount from blockchain.")
+                self._stake_dao.update_stake_for_given_request_id(request_id=request_id,
+                                                                  update_parameters={"claim_back_amount": stake_amount})
             self._request_dao.update_request_for_given_request_id(request_id=request_id,
                                                                   update_parameters={"fund_total": total_fund})
             self._solution_dao.update_solution_for_given_request_id(request_id=request_id,

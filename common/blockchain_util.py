@@ -106,12 +106,11 @@ class BlockChainUtil(object):
 
         return contract_network_path, contract_abi_path
 
-    def call_contract_function(self,contract,contract_function,positional_inputs):
-        function=getattr(contract.functions,contract_function)
-        result=function(positional_inputs).call()
+    def call_contract_function(self, contract, contract_function, positional_inputs):
+        function = getattr(contract.functions, contract_function)
+        result = function(*positional_inputs).call()
         return result
 
     def get_created_at_for_block(self, block_no):
         block_details = self.web3_object.eth.getBlock(block_no)
         return block_details
-
