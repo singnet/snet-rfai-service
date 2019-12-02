@@ -188,8 +188,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
             self._stake_dao.create_or_update_stake(request_id=request_id, stake_member=staker,
                                                    stake_amount=funded_amount, claim_back_amount=stake_amount,
                                                    created_at=created_at)
-            self._stake_dao.add_stake_amount(request_id=request_id, stake_member=stake_members,
-                                             stake_amount=funded_amount)
+            self._stake_dao.add_stake_amount(request_id=request_id, stake_member=staker, stake_amount=funded_amount)
 
             self._fund_request_trxn_dao.persist_transaction(stake_member=requester,
                                                             transaction_hash=event["data"]["transactionHash"],
