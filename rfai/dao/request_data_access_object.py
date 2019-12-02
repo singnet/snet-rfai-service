@@ -48,8 +48,9 @@ class RequestDAO:
         query_response = self.repo.execute(
             "SELECT request_id, requester, request_fund, fund_total, documentURI, expiration, end_submission, end_evaluation, "
             "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
-            "acceptance_criteria, request_actor, created_at FROM service_request "
-            "WHERE status = 1 AND end_submission < %s AND end_evaluation >= %s" + sub_query,
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = 1 AND "
+            "end_submission < %s AND end_evaluation >= %s AND request_id IN (SELECT DISTINCT request_id from "
+            "rfai_solution)" + sub_query,
             [current_block_no, current_block_no] + sub_query_values)
         return query_response
 
@@ -76,6 +77,20 @@ class RequestDAO:
             "OR (expiration > %s AND request_id NOT IN (SELECT request_id FROM rfai_vote)))" + sub_query,
             [current_block_no, current_block_no] + sub_query_values)
         return query_response
+
+    def get_approved_request_with_no_solution(self, current_block_no, filter_parameter):
+        sub_query, sub_query_values = generate_sub_query_for_filter_params(filter_parameter=filter_parameter)
+        if sub_query != "":
+            sub_query = " AND " + sub_query
+        query_response = self.repo.execute(
+            "SELECT request_id, requester, request_fund, fund_total, documentURI, expiration, end_submission, end_evaluation, "
+            "status, request_title, requester_name, description, git_hub_link, training_data_set_uri, "
+            "acceptance_criteria, request_actor, created_at FROM service_request WHERE status = 1 AND "
+            "end_submission < %s AND end_evaluation >= %s AND request_id NOT IN (SELECT DISTINCT request_id from "
+            "rfai_solution)" + sub_query,
+            [current_block_no, current_block_no] + sub_query_values)
+        return query_response
+
 
     def get_open_active_request(self, current_block_no, requester, filter_parameter):
         sub_query, sub_query_values = generate_sub_query_for_filter_params(filter_parameter=filter_parameter)
