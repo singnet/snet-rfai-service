@@ -186,7 +186,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         self._connection.begin_transaction()
         try:
             self._stake_dao.create_or_update_stake(request_id=request_id, stake_member=staker,
-                                                   stake_amount=funded_amount, claim_back_amount=stake_amount,
+                                                   stake_amount=0, claim_back_amount=stake_amount,
                                                    created_at=created_at)
             self._stake_dao.add_stake_amount(request_id=request_id, stake_member=staker, stake_amount=funded_amount)
 
