@@ -46,10 +46,9 @@ class StakeDAO:
             "INSERT INTO rfai_stake (request_id, stake_member, stake_amount, claim_back_amount, created_at, row_created, "
             "row_updated) "
             "VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) "
-            "ON DUPLICATE KEY UPDATE stake_amount = %s, claim_back_amount = %s, created_at = %s, "
+            "ON DUPLICATE KEY UPDATE claim_back_amount = %s, created_at = %s, "
             "row_updated = CURRENT_TIMESTAMP",
-            [request_id, stake_member, stake_amount, claim_back_amount, created_at, stake_amount, claim_back_amount,
-             created_at])
+            [request_id, stake_member, stake_amount, claim_back_amount, created_at, claim_back_amount, created_at])
         return query_response
 
     def add_stake_amount(self, request_id, stake_member, stake_amount):
