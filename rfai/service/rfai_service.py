@@ -72,7 +72,9 @@ class RFAIService:
                                                                                   filter_parameter=filter_parameter) + \
                                     self.request_dao.get_approved_request_with_no_votes(
                                         current_block_no=current_block_no,
-                                        filter_parameter=filter_parameter)
+                                        filter_parameter=filter_parameter) + \
+                                    self.request_dao.get_approved_request_with_no_solution(
+                                        current_block_no=current_block_no, filter_parameter=filter_parameter)
             else:
                 filter_parameter.update({"status": getattr(RFAIStatusCodes, status).value})
                 tmp_requests_data = self.request_dao.get_request_data_for_given_requester_and_status(
