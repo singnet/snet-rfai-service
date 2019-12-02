@@ -106,7 +106,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
                                              acceptance_criteria=acceptance_criteria, request_actor=request_actor,
                                              created_at=created_at)
             self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
-                                         claim_back_amount=0, created_at=created_at)
+                                         claim_back_amount=amount, created_at=created_at)
             self._fund_request_trxn_dao.persist_transaction(stake_member=requester,
                                                             transaction_hash=event["data"]["transactionHash"],
                                                             created_at=created_at)
@@ -114,6 +114,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
@@ -200,6 +201,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
@@ -343,6 +345,7 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
@@ -381,3 +384,4 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e

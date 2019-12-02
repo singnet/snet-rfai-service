@@ -52,8 +52,8 @@ class StakeDAO:
              created_at])
         return query_response
 
-    def add_stake_amount(self, request_id, stake_member, claim_back_amount):
+    def add_stake_amount(self, request_id, stake_member, stake_amount):
         query_response = self.repo.execute(
-            "UPDATE rfai_stake SET claim_back_amount = claim_back_amount + %s WHERE request_id = %s AND "
-            "stake_member = %s", [claim_back_amount, request_id, stake_member])
+            "UPDATE rfai_stake SET stake_amount = stake_amount + %s WHERE request_id = %s AND "
+            "stake_member = %s", [stake_amount, request_id, stake_member])
         return query_response
