@@ -114,6 +114,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIExtendRequestEventConsumer(RFAIEventConsumer):
@@ -200,6 +201,7 @@ class RFAIFundRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIAddFoundationMemberEventConsumer(RFAIEventConsumer):
@@ -343,6 +345,7 @@ class RFAIClaimBackRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
 
 
 class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
@@ -381,3 +384,4 @@ class RFAIClaimRequestEventConsumer(RFAIEventConsumer):
         except Exception as e:
             logger.info(f"Transaction Rollback for event {event}. Error::{repr(e)}")
             self._connection.rollback_transaction()
+            raise e
