@@ -168,7 +168,7 @@ class RFAIService:
                 rfai_solution_id=record["row_id"])
             record.update({"request_title": request_data[0]["request_title"], "votes": votes["votes"],
                            "expiration": request_data[0]["expiration"],
-                           "tokens": claim_amount_data[0]["claim_amount_for_soln_provider"],
+                           "tokens": int(claim_amount_data[0]["claim_amount_for_soln_provider"]),
                            "end_evaluation": request_data[0]["end_evaluation"]})
         return solution_data
 

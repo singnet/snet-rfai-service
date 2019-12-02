@@ -106,7 +106,7 @@ class RFAICreateRequestEventConsumer(RFAIEventConsumer):
                                              acceptance_criteria=acceptance_criteria, request_actor=request_actor,
                                              created_at=created_at)
             self._stake_dao.create_stake(request_id=request_id, stake_member=requester, stake_amount=amount,
-                                         claim_back_amount=0, created_at=created_at)
+                                         claim_back_amount=amount, created_at=created_at)
             self._fund_request_trxn_dao.persist_transaction(stake_member=requester,
                                                             transaction_hash=event["data"]["transactionHash"],
                                                             created_at=created_at)
