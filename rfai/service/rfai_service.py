@@ -166,9 +166,12 @@ class RFAIService:
             votes = self.vote_dao.get_vote_details_for_given_rfai_solution_id(rfai_solution_id=record["row_id"])
             claim_amount_data = self.rfai_request_dao.get_claim_amount_for_solution_provider(
                 rfai_solution_id=record["row_id"])
+            tokens = claim_amount_data[0]["claim_amount_for_soln_provider"]
+            if tokens is None:
+                tokens = 0
             record.update({"request_title": request_data[0]["request_title"], "votes": votes["votes"],
                            "expiration": request_data[0]["expiration"],
-                           "tokens": int(claim_amount_data[0]["claim_amount_for_soln_provider"]),
+                           "tokens": int(tokens),
                            "end_evaluation": request_data[0]["end_evaluation"]})
         return solution_data
 
