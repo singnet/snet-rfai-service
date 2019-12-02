@@ -63,7 +63,9 @@ class RFAIService:
 
             elif status_code == RFAIStatusCodes.CLOSED.value:
                 tmp_requests_data = self.request_dao.get_closed_request(requester=query_string_parameters["requester"],
-                                                                        filter_parameter=filter_parameter)
+                                                                        filter_parameter=filter_parameter) + \
+                                    self.request_dao.get_request_data_for_given_requester_and_status(
+                                        filter_parameter={"status": RFAIStatusCodes.REJECTED.value})
 
             elif status_code == RFAIStatusCodes.INCOMPLETE.value:
                 tmp_requests_data = self.request_dao.get_open_expired_request(current_block_no=current_block_no,
