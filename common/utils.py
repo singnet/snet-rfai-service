@@ -8,8 +8,9 @@ class Utils:
         pass
 
     def report_slack(self, slack_msg, SLACK_HOOK):
-        url = SLACK_HOOK["hostname"] + SLACK_HOOK["path"]
-        payload = {"channel": "#contract-index-alerts",
+        url = SLACK_HOOK['hostname'] + SLACK_HOOK['path']
+        slack_channel = SLACK_HOOK.get("channel", "contract-index-alerts")
+        payload = {"channel": f"#{slack_channel}",
                    "username": "webhookbot",
                    "text": slack_msg,
                    "icon_emoji": ":ghost:"
@@ -86,4 +87,3 @@ class Utils:
             return 0
         else:
             raise Exception("Invalid parameter value")
-
