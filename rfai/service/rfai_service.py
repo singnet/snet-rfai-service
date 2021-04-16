@@ -161,6 +161,7 @@ class RFAIService:
 
     def get_claims_data_for_solution_provider(self, user_address):
         current_block_no = obj_blockchain_utils.get_current_block_no()
+        logger.info(f"current_block_no {current_block_no}")
         solution_data = self.rfai_request_dao.get_claims_data_for_solution_provider(submitter=user_address,
                                                                                     current_block_no=current_block_no)
         for record in solution_data:
